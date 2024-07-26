@@ -1,6 +1,6 @@
 local function getcolor()
 	local reaction = UnitReaction("mouseover", "player") or 5
-	
+
 	if UnitIsPlayer("mouseover") then
 		local _, class = UnitClass("mouseover")
 		local color = RAID_CLASS_COLORS[class]
@@ -41,6 +41,8 @@ f:SetScript("OnEvent", function(self)
 	if foci[1] and foci[1]:GetName()~="WorldFrame" then return end
 
 	local name = UnitName("mouseover")
+	if name == nil then return end
+
 	local level = UnitLevel("mouseover")
 	local target = UnitName("mouseovertarget")
 	local AFK = UnitIsAFK("mouseover")
