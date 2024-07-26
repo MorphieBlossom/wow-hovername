@@ -1,0 +1,8 @@
+## Interface: 110000, 110002
+## Version: 1.1
+
+## Title: HoverName
+## Author: MorphieBlossom (AD-EU) - Original Nightcracker & Narfi (DieAldor-EU)
+## Notes: Addon that shows the names of players and NPC's if you hover over them
+
+HoverName.lua
