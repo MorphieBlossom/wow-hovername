@@ -39,5 +39,8 @@ luac.out
 *.x86_64
 *.hex
 
-#vscode
+# vscode
 .vscode
+
+# custom directories
+build/*
