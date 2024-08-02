@@ -10,4 +10,4 @@ World of Warcraft addon to show target name, level and status (afk, dnd) upon mo
 > _All credits go to them_
 
 ---
-View the [changelog here](./CHANGELOG.MD)
+View the [changelog here](./CHANGELOG.md)
