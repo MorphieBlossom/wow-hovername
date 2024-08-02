@@ -1,6 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+---
 ### `11.0.0.3` (2024-08-02)
 **New things**
 - Added now also display text for unit classification - e.g. World Boss, Elite, Rare and Rare Elite. These are displayed above the level and name.
@@ -14,7 +15,7 @@ All notable changes to this project will be documented in this file.
 **Fixes**
 - The target's target name will now also be properly displayed in the correct class color.
 
-
+---
 ### `11.0.0.2` (2024-07-27)
 **Improvements**
 - Updated addon version to match WoW version, this will make it easier to see if the version is suitable for the current patch. Formatted as: `[warcraft version].[addon build]`
@@ -22,7 +23,7 @@ All notable changes to this project will be documented in this file.
 **Fixes**
 - Fixed issue that could cause Lua error when there is no UnitName.
 
-
+---
 ### `1.1` (2024-07-26)
 Re-created the project.
 
