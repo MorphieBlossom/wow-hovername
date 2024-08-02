@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 ---
+### `11.0.0.4` (2024-08-02)
+**Fixes**
+- Fixed issue that caused in some cases the text to never be displayed at all. But somehow not everyone was affected by it.
+
+---
 ### `11.0.0.3` (2024-08-02)
 **New things**
 - Added now also display text for unit classification - e.g. World Boss, Elite, Rare and Rare Elite. These are displayed above the level and name.
