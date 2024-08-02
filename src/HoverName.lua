@@ -106,7 +106,7 @@ local function UpdateFramePosition(f)
 end
 
 
-local frame = CreateFrame("Frame", "MainFrame", UIParent, "BackdropTemplate")
+local frame = CreateFrame("Frame", "MainFrame", UIParent)
 frame:SetFrameStrata("TOOLTIP")
 --frame.texture = frame:CreateTexture()
 --frame.texture:SetAllPoints(frame)
