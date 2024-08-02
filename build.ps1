@@ -8,9 +8,9 @@ $version = ""
 
 # Read the version from the .toc file
 Get-Content $tocFile | ForEach-Object {
-    if ($_ -match "$versionPattern") {
-        $version = $_.Substring($versionPattern.Length).Trim()
-    }
+  if ($_ -match "$versionPattern") {
+    $version = $_.Substring($versionPattern.Length).Trim()
+  }
 }
 
 # Set the zip file name
@@ -19,7 +19,7 @@ $zipPath = "$buildDir/$zipName"
 
 # Ensure build directory exists
 if (!(Test-Path $buildDir)) {
-    New-Item -ItemType Directory -Path $buildDir
+  New-Item -ItemType Directory -Path $buildDir
 }
 
 # Create temporary directory for zipping

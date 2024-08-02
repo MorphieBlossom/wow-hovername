@@ -44,3 +44,4 @@ luac.out
 
 # custom directories
 build/*
+test.ps1
