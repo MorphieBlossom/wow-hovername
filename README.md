@@ -11,3 +11,5 @@ World of Warcraft addon to show target name, level and status (afk, dnd) upon mo
 
 ---
 View the [changelog here](./CHANGELOG.md)
+
+If you have questions, suggestions or encountering issues - feel free to reach out on [CurseForge](https://www.curseforge.com/wow/addons/hovername) or the [Github project](https://github.com/MorphieBlossom/wow-hovername)
