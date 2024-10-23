@@ -1,5 +1,5 @@
-## Interface: 110000, 110002
-## Version: 11.0.0.4
+## Interface: 110002, 110005
+## Version: 11.0.5.0
 
 ## Title: HoverName
 ## Author: MorphieBlossom (AD-EU) - Original Nightcracker & Narfi (DieAldor-EU)

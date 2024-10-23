@@ -1,7 +1,6 @@
 # wow-hovername
 
-![Version](https://img.shields.io/badge/version-11.0.2-059212)
-![Version](https://img.shields.io/badge/version-11.0.0-059212)
+![Version](https://img.shields.io/badge/version-11.0.5)
 
 World of Warcraft addon to show target name, level and status (afk, dnd) upon mouse hover.
 

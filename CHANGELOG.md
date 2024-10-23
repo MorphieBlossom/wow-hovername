@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 ---
+### `11.0.5.0` (2024-10-23)
+**Version update**
+- Updated version to 11.0.5
+
+---
 ### `11.0.0.4` (2024-08-02)
 **Fixes**
 - Fixed issue that caused in some cases the text to never be displayed at all. But somehow not everyone was affected by it.
