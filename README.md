@@ -2,7 +2,7 @@
 
 
 ### Version 11.0.5.0 - available for World of Warcraft version
-![Version](https://img.shields.io/badge/version-11.0.5)
+![Version](https://img.shields.io/badge/version-11.0.5-059212)
 
 👉 View the [changelog here](./CHANGELOG.md)
 
