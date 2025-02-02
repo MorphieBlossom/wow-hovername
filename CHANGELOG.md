@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `11.0.7.1` (2025-02-02)
+**New things**
+- Targets that are part of an active (world) quest will now have that quest objective displayed.
+Those that are part of a "progress" quest will also display the amount of percentage they will yield
+towards the total progress (thanks to the ObjectiveProgress library).
+
+---
 ### `11.0.7.0` (2024-12-20)
 **Version update**
 - Updated version to 11.0.7

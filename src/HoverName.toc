@@ -1,8 +1,9 @@
 ## Interface: 110005, 110007
-## Version: 11.0.7.0
+## Version: 11.0.7.1
 
 ## Title: HoverName
 ## Author: MorphieBlossom (AD-EU) - Original Nightcracker & Narfi (DieAldor-EU)
 ## Notes: Addon that shows the names of players and NPC's if you hover over them
 
+Libraries\Load_Libraries.xml
 HoverName.lua
