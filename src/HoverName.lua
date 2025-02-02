@@ -139,14 +139,12 @@ local function GetQuestText(tooltipLines)
 						if obj.type == "progressbar" and weightsTable then
 							local npcWeight = weightsTable[info.questID]
 							if npcWeight then
-								print('npcWeight')
 								return "- " .. obj.text .. string.format(" + %.1f%%", npcWeight)
 							end
 						end
 
 						-- Check for "monster" kill objectives (specific NPC kills)
 						if obj.type == "monster" and (string.find(string.lower(obj.text), targetName)) then
-							print('monster')
 							return "- " .. obj.text
 						end
 
