@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `11.0.7.2` (2025-02-03)
+**Improvements**
+- For targets that are counting to multiple objectives it will now show all of them.
+Sorted based on completion; once all objectives are complete the displayed objectives will be hidden again.
+
+---
 ### `11.0.7.1` (2025-02-02)
 **New things**
 - Targets that are part of an active (world) quest will now have that quest objective displayed.

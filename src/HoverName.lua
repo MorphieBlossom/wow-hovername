@@ -7,6 +7,16 @@ local COLOR_NEUTRAL = { r = 1, g = 1, b = 68 / 255 }
 local COLOR_HOSTILE_UNATTACKABLE = { r = 210 / 255, g = 76 / 255, b = 56 / 255 }
 local COLOR_RARE = { r = 226 / 255, g = 228 / 255, b = 226 / 255 }
 local COLOR_ELITE = { r = 213 / 255, g = 154 / 255, b = 18 / 255 }
+local COLOR_COMPLETE = { r = 136 / 255, g = 136 / 255, b = 136 / 255 }
+local ICON_CHECKMARK = "|TInterface\\RaidFrame\\ReadyCheck-Ready:11|t"
+local ICON_LIST = "- "
+
+local function Combine(table1, table2)
+	if not table1 or type(table1) ~= "table" then table1 = {} end
+	if not table2 or type(table2) ~= "table" then return table1 end
+	for _, value in ipairs(table2) do table.insert(table1, value) end
+	return table1
+end
 
 local function GetNpcID(unit)
 	local guid = UnitGUID(unit)
@@ -101,7 +111,7 @@ local function GetTooltipData()
 	if not UnitIsPlayer("mouseover") then
 		for i = 1, GameTooltip:NumLines() do
 			local line = _G["GameTooltipTextLeft" .. i]:GetText()
-			if line then table.insert(tooltipLines, line)	end
+			if line then table.insert(tooltipLines, line) end
 		end
 	end
 
@@ -109,8 +119,8 @@ local function GetTooltipData()
 end
 
 local function IsInTooltip(tooltipLines, query)
-	if not tooltipLines or type(tooltipLines) ~= "table" then	return false end
-	if not query or type(query) ~= "string" or query == "" then	return false end
+	if not tooltipLines or type(tooltipLines) ~= "table" then return false end
+	if not query or type(query) ~= "string" or query == "" then return false end
 
 	for _, line in ipairs(tooltipLines) do
 		if string.find(string.lower(line), string.lower(query)) then return true end
@@ -123,6 +133,7 @@ local function GetQuestText(tooltipLines)
 		return nil
 	end
 
+	local questTexts = {}
 	local targetName = string.lower(UnitName("mouseover"))
 	local npcID = GetNpcID("mouseover")
 	local weightsTable
@@ -135,23 +146,27 @@ local function GetQuestText(tooltipLines)
 			if objectives then
 				for _, obj in ipairs(objectives) do
 					if obj.text then
+
 						-- Check for progress bar objectives, use the LOP for mob check
 						if obj.type == "progressbar" and weightsTable then
 							local npcWeight = weightsTable[info.questID]
 							if npcWeight then
-								return "- " .. obj.text .. string.format(" + %.1f%%", npcWeight)
+								table.insert(questTexts, { text = obj.text .. string.format(" + %.1f%%", npcWeight), finished = obj.finished })
+								break
 							end
 						end
 
 						-- Check for "monster" kill objectives (specific NPC kills)
 						if obj.type == "monster" and (string.find(string.lower(obj.text), targetName)) then
-							return "- " .. obj.text
+							table.insert(questTexts, { text = obj.text, finished = obj.finished })
+							break
 						end
 
 						-- Alternatively, when this quest is displayed in the tooltips by any other addon,
 						-- then we can use that data as well
 						if IsInTooltip(tooltipLines, obj.text) then
-							return "- " .. obj.text
+							table.insert(questTexts, { text = obj.text, finished = obj.finished })
+							break
 						end
 					end
 				end
@@ -159,7 +174,18 @@ local function GetQuestText(tooltipLines)
 		end
 	end
 
-	return nil
+	-- Sort unfinished objectives first, completed ones below
+	table.sort(questTexts, function(a, b)	return not a.finished and b.finished end)
+
+	-- Convert sorted table to a final list of text entries
+	local sortedQuestTexts = {}
+	for _, entry in ipairs(questTexts) do
+		local color = entry.finished and COLOR_COMPLETE or COLOR_DEFAULT
+		local listIcon = entry.finished and ICON_CHECKMARK or ICON_LIST
+		table.insert(sortedQuestTexts, GetTextWithColor(listIcon .. entry.text, color))
+	end
+
+	return #sortedQuestTexts > 0 and sortedQuestTexts or nil
 end
 
 local function UpdateFrameContents(f)
@@ -174,22 +200,24 @@ local function UpdateFrameContents(f)
 	local targetText = GetTargetText()
 	local statusText = GetStatusText()
 	local classText = GetClassificationText()
-
 	local tooltips = GetTooltipData()
-	local questText = GetQuestText(tooltips)
-
-
-	local offset = 0
-	if questText then offset = 12 end
 
 	f.mainText:SetText(levelText .. unitText .. targetText)
 	f.headerText:SetText(statusText .. classText)
-	f.subText:SetText(questText)
+
+	local offset = 0
+	local subTexts = Combine(GetQuestText(tooltips))
+	if subTexts and #subTexts > 0 then
+		offset = 12 * #subTexts
+		f.subText:SetText(table.concat(subTexts, "\n"))
+	else
+		f.subText:SetText("")
+	end
 
 	f:SetSize(f.mainText:GetStringWidth(), f.mainText:GetStringHeight())
 	f.mainText:SetPoint("TOP", f, "TOP", 0, offset)
 	f.headerText:SetPoint("TOPLEFT", f.mainText, "TOPLEFT", 0, 12)
-	f.subText:SetPoint("BOTTOMLEFT", f.mainText, "BOTTOMLEFT", 12, -15)
+	f.subText:SetPoint("BOTTOMLEFT", f.mainText, "BOTTOMLEFT", 12, -1 + (-12 * #subTexts))
 
 	f:Show()
 end
