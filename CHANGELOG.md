@@ -1,5 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+
+---
+### `11.1.0.0` (2025-02-20)
+**Version update**
+- Updated to game version 11.1.0
+
 ---
 ### `11.0.7.2` (2025-02-03)
 **Improvements**
@@ -16,12 +22,12 @@ towards the total progress (thanks to the ObjectiveProgress library).
 ---
 ### `11.0.7.0` (2024-12-20)
 **Version update**
-- Updated version to 11.0.7
+- Updated to game version 11.0.7
 
 ---
 ### `11.0.5.0` (2024-10-23)
 **Version update**
-- Updated version to 11.0.5
+- Updated to game version 11.0.5
 
 ---
 ### `11.0.0.4` (2024-08-02)
@@ -55,4 +61,4 @@ towards the total progress (thanks to the ObjectiveProgress library).
 Re-created the project.
 
 **Fixes**
-- Fixed issues caused by the WoW API changes for version 11.0.0.
+- Fixed issues caused by the WoW API changes for game version 11.0.0.
