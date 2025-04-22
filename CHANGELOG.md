@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 ---
+### `11.1.5.0` (2025-04-22)
+**Version update**
+- Updated to game version 11.1.5
+
+---
 ### `11.1.0.0` (2025-02-20)
 **Version update**
 - Updated to game version 11.1.0
