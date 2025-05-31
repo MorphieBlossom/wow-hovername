@@ -1,5 +1,8 @@
 ## Interface: 110105, 110107
-## Version: 11.1.7.0
+## Version: 11.1.7.1
+
+## X-Curse-Project-ID: 1071886
+## X-Wago-ID: BNBe9xGx
 
 ## Title: HoverName
 ## Author: MorphieBlossom (AD-EU)
