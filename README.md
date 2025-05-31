@@ -1,7 +1,7 @@
 # <img src="/media/hovername-icon.png" width="50" height="50"> HoverName
 
 
-### Version 11.1.5.0 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-11.1.5)
+### Version 11.1.7.0 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-11.1.7)
 
 👉 View the [changelog here](./CHANGELOG.md)
 

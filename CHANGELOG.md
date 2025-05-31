@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.
 
 ---
+### `11.1.7.0` (2025-05-31)
+**Version update**
+- Updated to game version 11.1.7
+
+**Improvements**
+- Changed some underlying structure to now also include slash commands and able to store settings.
+
+**Fixes**
+- Improved some check to catch 'exceptional' cases from other AddOns making "bad" frames, such as OPie having a nameless overlay frame, that causes HoverName to no longer trigger.
+
+---
 ### `11.1.5.0` (2025-04-22)
 **Version update**
 - Updated to game version 11.1.5

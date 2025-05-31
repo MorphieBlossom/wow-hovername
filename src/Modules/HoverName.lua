@@ -1,32 +1,4 @@
-local LOP = LibStub:GetLibrary("LibObjectiveProgress-1.0")
-
-local COLOR_DEFAULT = { r = 1, g = 1, b = 1 }
-local COLOR_DEAD = { r = 136 / 255, g = 136 / 255, b = 136 / 255 }
-local COLOR_HOSTILE = { r = 1, g = 68 / 255, b = 68 / 255 }
-local COLOR_NEUTRAL = { r = 1, g = 1, b = 68 / 255 }
-local COLOR_HOSTILE_UNATTACKABLE = { r = 210 / 255, g = 76 / 255, b = 56 / 255 }
-local COLOR_RARE = { r = 226 / 255, g = 228 / 255, b = 226 / 255 }
-local COLOR_ELITE = { r = 213 / 255, g = 154 / 255, b = 18 / 255 }
-local COLOR_COMPLETE = { r = 136 / 255, g = 136 / 255, b = 136 / 255 }
-local ICON_CHECKMARK = "|TInterface\\RaidFrame\\ReadyCheck-Ready:11|t"
-local ICON_LIST = "- "
-
-local function Combine(table1, table2)
-	if not table1 or type(table1) ~= "table" then table1 = {} end
-	if not table2 or type(table2) ~= "table" then return table1 end
-	for _, value in ipairs(table2) do table.insert(table1, value) end
-	return table1
-end
-
-local function GetNpcID(unit)
-	local guid = UnitGUID(unit)
-	local npcID = guid and select(6, strsplit("-", guid))
-	if not npcID or npcID == "" then
-		return nil
-	else
-		return tonumber(npcID)
-	end
-end
+local _, addon = ...
 
 local function GetUnitNameColor(unittype)
 	local reaction = UnitReaction(unittype, "player") or 5
@@ -36,31 +8,27 @@ local function GetUnitNameColor(unittype)
 		return RAID_CLASS_COLORS[class]
 	elseif UnitCanAttack("player", unittype) then
 		if UnitIsDead(unittype) then
-			return COLOR_DEAD
+			return addon.COLOR_DEAD
 		else
 			if reaction < 4 then
-				return COLOR_HOSTILE
+				return addon.COLOR_HOSTILE
 			elseif reaction == 4 then
-				return COLOR_NEUTRAL
+				return addon.COLOR_NEUTRAL
 			end
 		end
 	else
 		if reaction < 4 then
-			return COLOR_HOSTILE_UNATTACKABLE
+			return addon.COLOR_HOSTILE_UNATTACKABLE
 		else
-			return COLOR_DEFAULT
+			return addon.COLOR_DEFAULT
 		end
 	end
-end
-
-local function GetTextWithColor(text, color)
-	return format("|cFF%02x%02x%02x%s |r", color.r * 255, color.g * 255, color.b * 255, text)
 end
 
 local function GetLevelText()
 	local level = UnitLevel("mouseover")
 	if level and level > 1 then
-		return GetTextWithColor(tostring(level), GetQuestDifficultyColor(level))
+		return addon.Utils:GetTextWithColor(tostring(level), GetQuestDifficultyColor(level))
 	else
 		return ""
 	end
@@ -69,7 +37,8 @@ end
 local function GetTargetText()
 	local target = UnitName("mouseovertarget")
 	if target then
-		return GetTextWithColor(">", COLOR_DEFAULT) .. GetTextWithColor(target, GetUnitNameColor("mouseovertarget"))
+		return addon.Utils:GetTextWithColor(">", addon.COLOR_DEFAULT) ..
+				addon.Utils:GetTextWithColor(target, GetUnitNameColor("mouseovertarget"))
 	else
 		return ""
 	end
@@ -80,11 +49,11 @@ local function GetStatusText(fakeAfk, fakeDnd, fakePvp)
 	local dndText = ""
 	local pvpText = ""
 
-	if (UnitIsAFK("mouseover") or fakeAfk) then afkText = GetTextWithColor("<AFK>", COLOR_DEAD) end
-	if (UnitIsDND("mouseover") or fakeDnd) then dndText = GetTextWithColor("<DND>", COLOR_HOSTILE) end
+	if (UnitIsAFK("mouseover") or fakeAfk) then afkText = addon.Utils:GetTextWithColor("<AFK>", addon.COLOR_DEAD) end
+	if (UnitIsDND("mouseover") or fakeDnd) then dndText = addon.Utils:GetTextWithColor("<DND>", addon.COLOR_HOSTILE) end
 	if ((UnitIsPVP("mouseover") and UnitIsPlayer("mouseover")) or fakePvp) then
-		pvpText = GetTextWithColor("<PVP>",
-			COLOR_HOSTILE)
+		pvpText = addon.Utils:GetTextWithColor("<PVP>",
+			addon.COLOR_HOSTILE)
 	end
 
 	return (afkText .. dndText .. pvpText)
@@ -93,39 +62,16 @@ end
 local function GetClassificationText()
 	local classification = UnitClassification("mouseover")
 	if (classification == "worldboss") then
-		return GetTextWithColor("World Boss", COLOR_ELITE)
+		return addon.Utils:GetTextWithColor("World Boss", addon.COLOR_ELITE)
 	elseif (classification == "elite") then
-		return GetTextWithColor("Elite", COLOR_ELITE)
+		return addon.Utils:GetTextWithColor("Elite", addon.COLOR_ELITE)
 	elseif (classification == "rareelite") then
-		return GetTextWithColor("Rare Elite", COLOR_RARE)
+		return addon.Utils:GetTextWithColor("Rare Elite", addon.COLOR_RARE)
 	elseif (classification == "rare") then
-		return GetTextWithColor("Rare", COLOR_RARE)
+		return addon.Utils:GetTextWithColor("Rare", addon.COLOR_RARE)
 	else
 		return ""
 	end
-end
-
-local function GetTooltipData()
-	local tooltipLines = {}
-
-	if not UnitIsPlayer("mouseover") then
-		for i = 1, GameTooltip:NumLines() do
-			local line = _G["GameTooltipTextLeft" .. i]:GetText()
-			if line then table.insert(tooltipLines, line) end
-		end
-	end
-
-	return tooltipLines
-end
-
-local function IsInTooltip(tooltipLines, query)
-	if not tooltipLines or type(tooltipLines) ~= "table" then return false end
-	if not query or type(query) ~= "string" or query == "" then return false end
-
-	for _, line in ipairs(tooltipLines) do
-		if string.find(string.lower(line), string.lower(query)) then return true end
-	end
-	return false
 end
 
 local function GetQuestText(tooltipLines)
@@ -135,9 +81,9 @@ local function GetQuestText(tooltipLines)
 
 	local questTexts = {}
 	local targetName = string.lower(UnitName("mouseover"))
-	local npcID = GetNpcID("mouseover")
+	local npcID = addon.Utils:GetNpcID("mouseover")
 	local weightsTable
-	if npcID then weightsTable = LOP:GetNPCWeightByCurrentQuests(npcID) end
+	if npcID then weightsTable = addon.LOP:GetNPCWeightByCurrentQuests(npcID) end
 
 	for i = 1, C_QuestLog.GetNumQuestLogEntries() do
 		local info = C_QuestLog.GetInfo(i)
@@ -146,12 +92,12 @@ local function GetQuestText(tooltipLines)
 			if objectives then
 				for _, obj in ipairs(objectives) do
 					if obj.text then
-
 						-- Check for progress bar objectives, use the LOP for mob check
 						if obj.type == "progressbar" and weightsTable then
 							local npcWeight = weightsTable[info.questID]
 							if npcWeight then
-								table.insert(questTexts, { text = obj.text .. string.format(" + %.1f%%", npcWeight), finished = obj.finished })
+								table.insert(questTexts,
+									{ text = obj.text .. string.format(" + %.1f%%", npcWeight), finished = obj.finished })
 								break
 							end
 						end
@@ -164,7 +110,7 @@ local function GetQuestText(tooltipLines)
 
 						-- Alternatively, when this quest is displayed in the tooltips by any other addon,
 						-- then we can use that data as well
-						if IsInTooltip(tooltipLines, obj.text) then
+						if addon.Utils:IsInTooltip(tooltipLines, obj.text) then
 							table.insert(questTexts, { text = obj.text, finished = obj.finished })
 							break
 						end
@@ -175,14 +121,14 @@ local function GetQuestText(tooltipLines)
 	end
 
 	-- Sort unfinished objectives first, completed ones below
-	table.sort(questTexts, function(a, b)	return not a.finished and b.finished end)
+	table.sort(questTexts, function(a, b) return not a.finished and b.finished end)
 
 	-- Convert sorted table to a final list of text entries
 	local sortedQuestTexts = {}
 	for _, entry in ipairs(questTexts) do
-		local color = entry.finished and COLOR_COMPLETE or COLOR_DEFAULT
-		local listIcon = entry.finished and ICON_CHECKMARK or ICON_LIST
-		table.insert(sortedQuestTexts, GetTextWithColor(listIcon .. entry.text, color))
+		local color = entry.finished and addon.COLOR_COMPLETE or addon.COLOR_DEFAULT
+		local listIcon = entry.finished and addon.ICON_CHECKMARK or addon.ICON_LIST
+		table.insert(sortedQuestTexts, addon.Utils:GetTextWithColor(listIcon .. entry.text, color))
 	end
 
 	return #sortedQuestTexts > 0 and sortedQuestTexts or nil
@@ -190,23 +136,28 @@ end
 
 local function UpdateFrameContents(f)
 	local foci = GetMouseFoci()
-	if foci[1] and foci[1]:GetName() ~= "WorldFrame" then return end
+	local frameName = foci[1] and foci[1]:GetName() or nil
+	if frameName ~= nil and frameName ~= "" and frameName ~= "WorldFrame" then return end
 
 	local unitName = UnitName("mouseover")
 	if unitName == nil then return end
 
-	local unitText = GetTextWithColor(unitName, GetUnitNameColor("mouseover"))
+	local unitText = addon.Utils:GetTextWithColor(unitName, GetUnitNameColor("mouseover"))
 	local levelText = GetLevelText()
 	local targetText = GetTargetText()
 	local statusText = GetStatusText()
 	local classText = GetClassificationText()
-	local tooltips = GetTooltipData()
+	local tooltips = addon.Utils:GetTooltipData()
 
-	f.mainText:SetText(levelText .. unitText .. targetText)
-	f.headerText:SetText(statusText .. classText)
+	local mainText = levelText .. unitText .. targetText
+	local headerText = statusText .. classText
+	f.mainText:SetText(mainText)
+	f.headerText:SetText(headerText)
+
+	addon.Utils:DebugLog(string.format("Unit: %s (%s)", mainText, headerText))
 
 	local offset = 0
-	local subTexts = Combine(GetQuestText(tooltips))
+	local subTexts = addon.Utils:CombineTables(GetQuestText(tooltips))
 	if subTexts and #subTexts > 0 then
 		offset = 12 * #subTexts
 		f.subText:SetText(table.concat(subTexts, "\n"))
@@ -234,7 +185,7 @@ local function UpdateFramePosition(f)
 end
 
 
-local frame = CreateFrame("Frame", "MainFrame", UIParent)
+local frame = CreateFrame("Frame", "HoverNameFrame", UIParent)
 frame:SetFrameStrata("TOOLTIP")
 --frame.texture = frame:CreateTexture()
 --frame.texture:SetAllPoints(frame)
