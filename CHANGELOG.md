@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+---
+### `11.1.7.1` (2025-05-31)
+- Update TOC to include Curse and Wago IDs. Removed Library TOC file.
 
 ---
 ### `11.1.7.0` (2025-05-31)

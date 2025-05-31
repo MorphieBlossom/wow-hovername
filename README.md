@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/refs/heads/main/media/hovername-icon.png" width="50" height="50"> HoverName
 
-### Version 11.1.7.0 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-11.1.7-blue)
+### Version 11.1.7.1 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-11.1.7-blue)
 
 👉 View the [changelog here]https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG.md
 
