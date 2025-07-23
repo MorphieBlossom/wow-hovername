@@ -1,5 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+
+---
+### `11.2.0.0` (2025-07-23)
+**Version update**
+- Updated to game version 11.2.0
+
 ---
 ### `11.1.7.1` (2025-05-31)
 - Update TOC to include Curse and Wago IDs. Removed Library TOC file.
