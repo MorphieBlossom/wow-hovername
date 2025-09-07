@@ -1,9 +1,18 @@
 local addonName, addon = ...
-
 Utils = {}
 
+local function clamp255(x)
+  if type(x) ~= "number" then return 255 end
+  if x < 0 then return 0 end
+  if x > 1 then x = 1 end
+  return math.floor(x * 255 + 0.5)
+end
+
 function Utils:GetTextWithColor(text, color)
-	return format("|cFF%02x%02x%02x%s |r", color.r * 255, color.g * 255, color.b * 255, text)
+	local r = clamp255(color and color.r or 1)
+  local g = clamp255(color and color.g or 1)
+  local b = clamp255(color and color.b or 1)
+  return string.format("|cFF%02x%02x%02x%s |r", r, g, b, text)
 end
 
 function Utils:DebugLog(logText)
@@ -36,21 +45,42 @@ function Utils:GetTooltipData()
   local tooltipLines = {}
   if not UnitIsPlayer("mouseover") then
     for i = 1, GameTooltip:NumLines() do
-      local line = _G["GameTooltipTextLeft" .. i]:GetText()
-      if line then table.insert(tooltipLines, line) end
+      local fs = _G["GameTooltipTextLeft" .. i]
+      if fs and fs.GetText then
+        local line = fs:GetText()
+        if line then table.insert(tooltipLines, line) end
+      end
     end
   end
   return tooltipLines
 end
 
-function Utils:IsInTooltip(tooltipLines, query)
-	if not tooltipLines or type(tooltipLines) ~= "table" then return false end
-	if not query or type(query) ~= "string" or query == "" then return false end
+function Utils:GetTopMouseFocusName()
+	-- Retail
+  if type(GetMouseFoci) == "function" then
+    local foci = GetMouseFoci()
+    if foci and foci[1] and foci[1].GetName then
+      return foci[1]:GetName()
+    end
+  end
+	-- Legacy
+  if type(GetMouseFocus) == "function" then
+    local f = GetMouseFocus()
+    if f and f.GetName then
+      return f:GetName()
+    end
+  end
+  return nil
+end
 
-	for _, line in ipairs(tooltipLines) do
-		if string.find(string.lower(line), string.lower(query)) then return true end
-	end
-	return false
+function Utils:IsInTooltip(tooltipLines, query)
+  if not tooltipLines or type(tooltipLines) ~= "table" then return false end
+  if not query or type(query) ~= "string" or query == "" then return false end
+  local q = string.lower(query)
+  for _, line in ipairs(tooltipLines) do
+    if string.find(string.lower(line or ""), q, 1, true) then return true end
+  end
+  return false
 end
 
 -- Expose module

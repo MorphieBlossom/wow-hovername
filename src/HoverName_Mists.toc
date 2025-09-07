@@ -1,8 +1,8 @@
-## Interface: 110107, 110200
-## Version: 11.2.0.1
+## Interface: 50500
+## Version: 5.5.0.1
 
-## X-Flavor: retail
-## X-Expansion: TWW
+## X-Flavor: classic
+## X-Expansion: MOP
 ## X-Curse-Project-ID: 1071886
 ## X-Wago-ID: BNBe9xGx
 
@@ -12,7 +12,7 @@
 ## Notes: Addon that shows the names of players and NPC's if you hover over them
 ## SavedVariables: HoverNameData
 
-Libraries\Load_Libraries.xml
+Libraries\Load_Libraries_Mists.xml
 Init.lua
 Modules\Utils.lua
 Modules\UnitInfo.lua

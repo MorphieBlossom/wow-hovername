@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 
 ---
+### `11.2.0.1` (2025-09-07)
+**Improvements**
+- Split up some code into separate modules, making it easier to build in legacy WoW-API support.
+- Added support for Legacy WoW-API for quest information.
+
+---
 ### `11.2.0.0` (2025-07-23)
 **Version update**
 - Updated to game version 11.2.0

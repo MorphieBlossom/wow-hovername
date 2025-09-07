@@ -1,46 +1,90 @@
-# Set variables
-$srcDir = "./src"
-$buildDir = "./build"
+# --- Settings ---
+$srcDir      = "./src"
+$buildDir    = "./build"
 $projectName = "HoverName"
-$tocFile = "$srcDir/$projectName.toc"
-$versionPattern = "## Version: "
-$version = ""
+$commonDocs  = @("./LICENSE", "./README.md")
 
-# Read the version from the .toc file
-Get-Content $tocFile | ForEach-Object {
-  if ($_ -match "$versionPattern") {
-    $version = $_.Substring($versionPattern.Length).Trim()
+# --- Prep ---
+if (!(Test-Path $buildDir)) { New-Item -ItemType Directory -Path $buildDir | Out-Null }
+
+# Collect all *.toc variants (HoverName.toc, HoverName_*.toc)
+$tocFiles = Get-ChildItem -Path $srcDir -Filter "$projectName*.toc" -File
+if ($tocFiles.Count -eq 0) {
+  Write-Error "No .toc files found in $srcDir"
+  exit 1
+}
+
+$built = @()
+
+foreach ($toc in $tocFiles) {
+  # Derive suffix from TOC filename
+  $base    = [IO.Path]::GetFileNameWithoutExtension($toc.Name)
+  $suffix  = $base.Substring($projectName.Length)
+  $display = if ([string]::IsNullOrWhiteSpace($suffix)) { "Retail" } else { $suffix.TrimStart("_") }
+
+  # Read version from this TOC
+  $versionPattern = '^\s*##\s*Version\s*:\s*(.+)$'
+  $version = (Select-String -Path $toc.FullName -Pattern $versionPattern -AllMatches |
+              Select-Object -First 1 -ExpandProperty Matches |
+              ForEach-Object { $_.Groups[1].Value.Trim() })
+  if ([string]::IsNullOrWhiteSpace($version)) { $version = "0.0.0" }
+
+  # Temp working dirs
+  $tempDir  = Join-Path $buildDir ("Temp_" + $projectName + $suffix)
+  $addonDir = Join-Path $tempDir $projectName
+
+  if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
+  New-Item -ItemType Directory -Path $addonDir | Out-Null
+
+  try {
+    # Copy source
+    Copy-Item -Path (Join-Path $srcDir "*") -Destination $addonDir -Recurse
+
+    # Ensure only the selected TOC is present inside the package (renamed to HoverName.toc)
+    Get-ChildItem -Path $addonDir -Filter "$projectName*.toc" -File | Remove-Item -Force
+    Copy-Item -Path $toc.FullName -Destination (Join-Path $addonDir "$projectName.toc")
+
+    # Always include common docs
+    foreach ($doc in $commonDocs) {
+      if (Test-Path $doc) { Copy-Item -Path $doc -Destination $addonDir -Force }
+    }
+
+    # Select changelog by SAME suffix as the TOC
+    $changelog = if ([string]::IsNullOrWhiteSpace($suffix)) {
+      "./CHANGELOG.md"
+    } else {
+      $candidate = ".\CHANGELOG$suffix.md"
+      if (Test-Path $candidate) { $candidate } else { "./CHANGELOG.md" }
+    }
+
+    # Copy the chosen changelog INTO the package AS "CHANGELOG" (no extension)
+    if (Test-Path $changelog) {
+      Copy-Item -Path $changelog -Destination (Join-Path $addonDir "CHANGELOG.md") -Force
+    } else {
+      Write-Warning "Changelog not found ($changelog) for $display build. Skipping."
+    }
+
+    # ZIP name mirrors the TOC suffix (empty suffix => no suffix in name)
+    $zipName = if ([string]::IsNullOrWhiteSpace($suffix)) {
+      "$projectName-v$version.zip"
+    } else {
+      "$projectName-v$version$suffix.zip" 
+    }
+
+
+    $zipName = $zipName -replace "_", "-"
+    $zipPath = Join-Path $buildDir $zipName
+    if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+
+    Compress-Archive -Path (Join-Path $tempDir "*") -DestinationPath $zipPath -Force
+
+    $built += $zipName
+  }
+  finally {
+    if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
   }
 }
 
-# Set the zip file name
-$zipName = "$projectName-v$version.zip"
-$zipPath = "$buildDir/$zipName"
-
-# Ensure build directory exists
-if (!(Test-Path $buildDir)) {
-  New-Item -ItemType Directory -Path $buildDir
-}
-
-# Create temporary directory for zipping
-$tempDir = New-Item -ItemType Directory -Path (Join-Path $buildDir "TempHoverDir")
-
-# Create HoverName directory inside temporary directory
-$hoverDir = New-Item -ItemType Directory -Path (Join-Path $tempDir $projectName)
-
-# Copy files from src directory to HoverName directory
-Copy-Item -Path "$srcDir\*" -Destination $hoverDir -Recurse
-
-# Copy specific files to HoverName directory
-$specificFiles = @("./CHANGELOG.md", "./LICENSE", "./README.md")
-foreach ($file in $specificFiles) {
-  Copy-Item -Path $file -Destination $hoverDir
-}
-
-# Create the zip file
-Compress-Archive -Path "$tempDir\*" -DestinationPath $zipPath -Force
-
-# Clean up temporary directory
-Remove-Item -Path $tempDir -Recurse -Force
-
-Write-Host "$zipName has been created in the build directory."
+Write-Host ""
+Write-Host "Output:" -ForegroundColor Cyan
+$built | ForEach-Object { Write-Host " - $_" }

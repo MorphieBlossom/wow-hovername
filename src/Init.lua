@@ -1,11 +1,14 @@
 local addonName, addon = ...
-local LOP = LibStub:GetLibrary("LibObjectiveProgress-1.0")
 
 -- SavedVariables must be declared in .toc:
 local dbName = addonName .. "Data"
 addon.DB_Name = dbName
 
 -- Expose libraries
+local LOP
+if type(LibStub) == "table" and type(LibStub.GetLibrary) == "function" then
+  LOP = LibStub:GetLibrary("LibObjectiveProgress-1.0", true)
+end
 addon.LOP = LOP
 
 -- Constant values
