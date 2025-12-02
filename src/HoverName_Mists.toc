@@ -1,5 +1,5 @@
-## Interface: 50500
-## Version: 5.5.0.1
+## Interface: 50502, 50503
+## Version: 5.5.2.0
 
 ## X-Flavor: classic
 ## X-Expansion: MOP

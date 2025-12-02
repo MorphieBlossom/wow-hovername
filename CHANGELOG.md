@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 ---
+### `11.2.7.0` (2025-12-02)
+**Version update**
+- Updated to game version 11.2.7
+
+---
 ### `11.2.0.1` (2025-09-07)
 **Improvements**
 - Split up some code into separate modules, making it easier to build in legacy WoW-API support.
