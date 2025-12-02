@@ -1,9 +1,14 @@
 # <img src="https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/refs/heads/main/media/hovername-icon.png" width="50" height="50"> HoverName
 
 ### Version 11.2.7.0 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-11.2.7-blue)
+
+👉 View the [changelog here](https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG.md)
+
+---
+
 ### Version 5.5.2.0 - available for World of Warcraft - Mists of Pandaria Classic ![Version](https://img.shields.io/badge/version-5.5.2-blue)
 
-👉 View the [changelog here]https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG.md
+👉 View the [changelog here](https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG_Mists.md)
 
 ---
 
