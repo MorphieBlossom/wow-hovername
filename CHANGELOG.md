@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+---
+### `12.0.0.0` (2026-01-15)
+**Version update**
+- Updated to game version 12.0.0
 
 ---
 ### `11.2.7.0` (2025-12-02)
