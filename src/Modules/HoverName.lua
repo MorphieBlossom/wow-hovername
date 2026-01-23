@@ -30,10 +30,22 @@ local function UpdateFrameContents(f)
 		f.subText:SetText("")
 	end
 
-	f:SetSize(f.mainText:GetStringWidth(), f.mainText:GetStringHeight())
+	local width, height
+	if not IsInInstance() then
+		width = f.mainText:GetStringWidth()
+		height = f.mainText:GetStringHeight()
+	end
+
+	width = width or 100
+	height = height or 14
+
+	local subCount = (subTexts and #subTexts) or 0
+	width = math.max(1, width + 16)
+	height = math.max(1, height + (12 * subCount))
+	f:SetSize(width, height)
 	f.mainText:SetPoint("TOP", f, "TOP", 0, offset)
 	f.headerText:SetPoint("TOPLEFT", f.mainText, "TOPLEFT", 0, 12)
-	f.subText:SetPoint("BOTTOMLEFT", f.mainText, "BOTTOMLEFT", 12, -1 + (-12 * #subTexts))
+	f.subText:SetPoint("BOTTOMLEFT", f.mainText, "BOTTOMLEFT", 12, -1 + (-12 * subCount))
 
 	f:Show()
 end
