@@ -18,5 +18,7 @@ Modules\Utils.lua
 Modules\UnitInfo.lua
 Modules\QuestInfo.lua
 Modules\Settings.lua
+Modules\OptionsScreen.lua
+Modules\ConfigScreen.lua
 Modules\Commands.lua
 Modules\HoverName.lua

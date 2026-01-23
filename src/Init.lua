@@ -22,6 +22,9 @@ addon.COLOR_ELITE = { r = 213 / 255, g = 154 / 255, b = 18 / 255 }
 addon.COLOR_COMPLETE = { r = 136 / 255, g = 136 / 255, b = 136 / 255 }
 addon.ICON_CHECKMARK = "|TInterface\\RaidFrame\\ReadyCheck-Ready:11|t"
 addon.ICON_LIST = "- "
+addon.VERSION = C_AddOns.GetAddOnMetadata(addonName, "Version")
+addon.NAME = C_AddOns.GetAddOnMetadata(addonName, "Title")
+addon.AUTHOR = C_AddOns.GetAddOnMetadata(addonName, "Author")
 
 -- Define additional configurable slash commands here; /addonName is always registered
 addon.COMMANDS_TRIGGERLIST = { "/hn" }

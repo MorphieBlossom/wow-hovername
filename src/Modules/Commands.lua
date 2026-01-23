@@ -44,10 +44,17 @@ Commands.list = {
   version = {
     desc = "Show addon version",
     func = function()
-      PrintCommand("version", string.format("|cffffff00%s|r by %s", C_AddOns.GetAddOnMetadata(addonName, "Version"), C_AddOns.GetAddOnMetadata(addonName, "Author")))
+      PrintCommand("version", string.format("|cffffff00%s|r by %s", addon.VERSION, addon.AUTHOR))
       return true
     end,
   },
+  settings = {
+    desc = "Open the settings window",
+    func = function()
+      Settings.OpenToCategory(addon.OptionsScreenID);
+      return true
+    end,
+  }
 }
 
 
