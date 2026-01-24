@@ -31,9 +31,12 @@ local function UpdateFrameContents(f)
 	end
 
 	local width, height
-	if not IsInInstance() then
-		width = f.mainText:GetStringWidth()
-		height = f.mainText:GetStringHeight()
+	local mainTextValue = f.mainText:GetText()
+	if mainTextValue and not issecretvalue(mainTextValue) then
+		local okW, w = pcall(f.mainText.GetStringWidth, f.mainText)
+		local okH, h = pcall(f.mainText.GetStringHeight, f.mainText)
+		if okW and not issecretvalue(w) and type(w) == "number" then width = w end
+		if okH and not issecretvalue(h) and type(h) == "number" then height = h end
 	end
 
 	width = width or 100

@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `12.0.0.2` (2026-01-24)
+**Bug fixes**
+- Changed previous fix to be more effective; it seems that Blizzard's code is not working properly
+that when leaving instance it still flags values as secrets while it shouldn't.
+
+---
 ### `12.0.0.1` (2026-01-23)
 **Bug fixes**
 - Fixed issue that the hovering no longer worked in instances (Blizzard's combat addon purge).
