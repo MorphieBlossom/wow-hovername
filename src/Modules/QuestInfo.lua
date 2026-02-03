@@ -1,6 +1,13 @@
 local _, addon = ...
 QuestInfo = {}
 
+local function IsActive(setting)
+	if not (addon and addon.Settings and addon.Settings.Get) then return true end
+	local value = addon.Settings:Get(setting)
+	if value == nil then return true end
+	return value
+end
+
 local function GetActiveQuests()
   local results = {}
 
@@ -67,7 +74,7 @@ end
 -- --- Public: build formatted quest lines for a given unit (e.g., "mouseover") ---
 -- Returns: array of colored strings (or nil) you can \n-concat directly under your header.
 function QuestInfo:GetQuestText(unit, tooltipLines)
-  if UnitIsPlayer(unit) or not UnitIsRelatedToActiveQuest(unit) then
+  if UnitIsPlayer(unit) or not UnitIsRelatedToActiveQuest(unit) or not IsActive("Quest_Show") then
 		return nil
 	end
 
@@ -117,6 +124,17 @@ function QuestInfo:GetQuestText(unit, tooltipLines)
 		end
 	end
 
+  -- Filter out finished objectives if the setting is disabled
+  if not IsActive("Quest_ShowCompleted") then
+    local filtered = {}
+    for _, entry in ipairs(questTexts) do
+      if not entry.finished then
+        table.insert(filtered, entry)
+      end
+    end
+    questTexts = filtered
+  end
+
 	-- Sort unfinished objectives first, completed ones below
 	table.sort(questTexts, function(a, b) return not a.finished and b.finished end)
 
@@ -131,5 +149,5 @@ function QuestInfo:GetQuestText(unit, tooltipLines)
 	return #sortedQuestTexts > 0 and sortedQuestTexts or nil
 end
 
--- Expose module
 addon.QuestInfo = QuestInfo
+return QuestInfo

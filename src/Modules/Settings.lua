@@ -38,6 +38,10 @@ Settings.definitions = {
     Max = 30,
     Step = 1,
     Default = 12,
+    OnChange = function()
+      local f = addon.HoverName and addon.HoverName.UpdateFrame
+      if f then pcall(f) end
+    end,
   },
   {
     Key = "Display_FontType",
@@ -45,13 +49,17 @@ Settings.definitions = {
     Description = "The font family of all texts displayed when hovering",
     Group = "Display",
     Type = "dropdown",
-    Options = { "Friz Quadrata TT", "Morpheus", "Skurri", "Homespun" },
+    Options = { "Friz Quadrata TT" },
     Default = "Friz Quadrata TT",
+    OnChange = function()
+      local f = addon.HoverName and addon.HoverName.UpdateFrame
+      if f then pcall(f) end
+    end,
   },
   {
     Key = "Player_ClassColor",
     Name = "Class Colors",
-    Description = "Color the player's name by their class",
+    Description = "Color a player's name by their class",
     Group = "Player",
     Type = "checkbox",
     Default = true,
@@ -59,7 +67,15 @@ Settings.definitions = {
   {
     Key = "Player_ShowLevel",
     Name = "Show Level",
-    Description = "Show the player's level",
+    Description = "Show a player's level",
+    Group = "Player",
+    Type = "checkbox",
+    Default = true,
+  },
+  {
+    Key = "Player_LevelColor",
+    Name = "Level Color",
+    Description = "Color a player's level in comparison to your own level",
     Group = "Player",
     Type = "checkbox",
     Default = true,
@@ -67,7 +83,7 @@ Settings.definitions = {
   {
     Key = "Player_ShowTarget",
     Name = "Show Target",
-    Description = "Show the name of the player's current target",
+    Description = "Show the name of a player's current target",
     Group = "Player",
     Type = "checkbox",
     Default = true,
@@ -75,7 +91,7 @@ Settings.definitions = {
   {
     Key = "Player_ShowStatus",
     Name = "Show Status",
-    Description = "Show the player's status (AFK / DND / PvP)",
+    Description = "Show a player's status (AFK / DND / PvP)",
     Group = "Player",
     Type = "checkbox",
     Default = true,
@@ -83,7 +99,7 @@ Settings.definitions = {
   {
     Key = "Player_ShowGuildName",
     Name = "Show Guild name",
-    Description = "Show the player's guild name",
+    Description = "Show a player's guild name",
     Group = "Player",
     Type = "checkbox",
     Default = false,
@@ -91,7 +107,7 @@ Settings.definitions = {
   {
     Key = "Player_ShowGuildRank",
     Name = "Show Guild rank",
-    Description = "Show the player's guild rank",
+    Description = "Show a player's guild rank",
     Group = "Player",
     Type = "checkbox",
     Default = false,
@@ -99,7 +115,7 @@ Settings.definitions = {
   {
     Key = "Player_ShowRace",
     Name = "Show Race",
-    Description = "Show the player's race",
+    Description = "Show a player's race",
     Group = "Player",
     Type = "checkbox",
     Default = false,
@@ -107,7 +123,7 @@ Settings.definitions = {
   {
     Key = "Player_ShowFaction",
     Name = "Show Faction",
-    Description = "Show the player's faction",
+    Description = "Show a player's faction",
     Group = "Player",
     Type = "checkbox",
     Default = false,
@@ -115,7 +131,7 @@ Settings.definitions = {
   {
     Key = "NPC_ColorState",
     Name = "Standing Colors",
-    Description = "Color the NPC name by their standing towards you (dead / hostile / neutral / friendly)",
+    Description = "Color an NPC's name by their standing towards you (dead / hostile / neutral / friendly)",
     Group = "NPC",
     Type = "checkbox",
     Default = true,
@@ -123,7 +139,15 @@ Settings.definitions = {
   {
     Key = "NPC_ShowLevel",
     Name = "Show Level",
-    Description = "Show the NPC's level",
+    Description = "Show an NPC's level",
+    Group = "NPC",
+    Type = "checkbox",
+    Default = true,
+  },
+  {
+    Key = "NPC_LevelColor",
+    Name = "Level Color",
+    Description = "Color an NPC's level in comparison to your own level",
     Group = "NPC",
     Type = "checkbox",
     Default = true,
@@ -131,7 +155,7 @@ Settings.definitions = {
   {
     Key = "NPC_ShowTarget",
     Name = "Show Target",
-    Description = "Show the name of the NPC's current target",
+    Description = "Show the name of an NPC's current target",
     Group = "NPC",
     Type = "checkbox",
     Default = true,
@@ -139,32 +163,40 @@ Settings.definitions = {
   {
     Key = "NPC_ShowClassification",
     Name = "Show Classification",
-    Description = "Show the NPC's classification (rare / elite / boss)",
+    Description = "Show an NPC's classification (rare / elite / boss)",
     Group = "NPC",
     Type = "checkbox",
     Default = true,
   },
   {
-    Key = "Quest_ShowRegular",
-    Name = "Show Regular Quests",
-    Description = "Show markers/info for regular quests",
-    Group = "Quests",
+    Key = "NPC_ShowFaction",
+    Name = "Show Faction",
+    Description = "Show an NPC's faction",
+    Group = "NPC",
+    Type = "checkbox",
+    Default = false,
+  },
+  {
+    Key = "NPC_ShowCreatureType",
+    Name = "Show Creature Type",
+    Description = "Show an NPC's creature type (e.g. Beast, Humanoid, Demon, etc.)",
+    Group = "NPC",
+    Type = "checkbox",
+    Default = false,
+  },
+  {
+    Key = "Quest_Show",
+    Name = "Show Information",
+    Description = "Show info below the target's name if this is needed for quests, dailies, world quests or objectives.",
+    Group = "Quests / Objectives",
     Type = "checkbox",
     Default = true,
   },
   {
-    Key = "Quest_ShowDaily",
-    Name = "Show Daily Quests",
-    Description = "Show markers/info for daily quests",
-    Group = "Quests",
-    Type = "checkbox",
-    Default = true,
-  },
-  {
-    Key = "Quest_ShowWorld",
-    Name = "Show World Quests",
-    Description = "Show markers/info for world quests",
-    Group = "Quests",
+    Key = "Quest_ShowCompleted",
+    Name = "Show Completed",
+    Description = "Still show completed objectives in the hover information, until all are completed.",
+    Group = "Quests / Objectives",
     Type = "checkbox",
     Default = true,
   },
@@ -175,6 +207,7 @@ Settings.definitions = {
     Group = "Objects",
     Type = "checkbox",
     Default = false,
+    Hide = true,
   },
   {
     Key = "Integrations_Rarity",
@@ -183,6 +216,7 @@ Settings.definitions = {
     Group = "Integrations",
     Type = "checkbox",
     Default = false,
+    Hide = true,
   },
 }
 
@@ -203,7 +237,25 @@ end
 function Settings:Init()
   addon.DB = addon.DB or {}
   addon.DB.Settings = addon.DB.Settings or {}
+
+  -- Populate font options via Fonts module (keeps Init cleaner)
+  if addon.Settings and addon.Settings.byKey and addon.Settings.byKey["Display_FontType"] and addon.Fonts and addon.Fonts.GetAvailableFonts then
+    local fonts, _ = addon.Fonts:GetAvailableFonts()
+    addon.Settings.byKey["Display_FontType"].Options = fonts
+  end
+
+  -- Ensure selection defaults are valid and initialize saved settings
   for _, def in ipairs(self.definitions) do
+    if def.Type == "selection" and def.Options and #def.Options > 0 then
+      local ok = false
+      for _, opt in ipairs(def.Options) do
+        if opt == def.Default then ok = true break end
+      end
+      if not ok then
+        def.Default = def.Options[1]
+      end
+    end
+
     if addon.DB.Settings[def.Key] == nil then
       addon.DB.Settings[def.Key] = def.Default
     end
@@ -255,6 +307,12 @@ function Settings:Set(key, value)
 
   addon.DB.Settings[key] = value
   Log(def, value)
+
+  -- Call any change callback defined on the setting def
+  if def.OnChange then
+    pcall(function() def.OnChange(value) end)
+  end
+
   return true
 end
 
@@ -267,6 +325,6 @@ function Settings:ToggleDebug(state)
   self:Set("DebugLogging", state)
 end
 
--- Expose module
+
 addon.Settings = Settings
 return Settings

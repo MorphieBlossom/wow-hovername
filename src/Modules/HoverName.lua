@@ -1,23 +1,76 @@
 local _, addon = ...
+local HoverName = {}
+HoverName.init = false
+
+local function UpdateFrameFonts(f)
+	if not (addon and addon.Settings and addon.Settings.Get) then return end
+
+	local fontName = addon.Settings:Get("Display_FontType")
+	local fontSize = tonumber(addon.Settings:Get("Display_FontSize"))
+	if not (fontName and fontSize) then return end
+
+	local fontPath
+	if addon.Fonts then
+		local map = addon.Fonts._fontMap
+		if map and map[fontName] then fontPath = map[fontName] end
+		if not fontPath and addon.Fonts.LSM and addon.Fonts.LSM.Fetch then
+			local ok, path = pcall(function() return addon.Fonts.LSM:Fetch("font", fontName) end)
+			if ok and path then fontPath = path end
+		end
+	end
+
+	if not fontPath then return end
+
+	pcall(function()
+		if f.mainText then f.mainText:SetFont(fontPath, fontSize, "OUTLINE") end
+		if f.headerText then f.headerText:SetFont(fontPath, fontSize - 3, "OUTLINE") end
+		if f.statusText then f.statusText:SetFont(fontPath, fontSize - 4, "OUTLINE") end
+		if f.guildText then f.guildText:SetFont(fontPath, fontSize - 4, "OUTLINE") end
+		if f.subText then f.subText:SetFont(fontPath, fontSize - 3, "OUTLINE") end
+	end)
+end
+
+local function SetAnchor(element, anchor, position, top)
+	local margin = 13
+	margin = (top or 0) + margin
+	top = margin + 2
+
+	element:SetPoint(position, anchor, position, 0, margin)
+	return top
+end
 
 local function UpdateFrameContents(f)
+	if HoverName.init == false then
+		HoverName.init = true
+		pcall(function() UpdateFrameFonts(f) end)
+	end
+
 	local frameName = addon.Utils:GetTopMouseFocusName()
-	if frameName ~= nil and frameName ~= "" and frameName ~= "WorldFrame" then return end
+	if addon.Utils:IsNotEmpty(frameName) and frameName ~= "WorldFrame" then return end
 
 	local unitName = UnitName("mouseover")
 	if unitName == nil then return end
 
 	local unitText = addon.Utils:GetTextWithColor(unitName, addon.UnitInfo:GetUnitNameColor("mouseover"))
-	local levelText = addon.UnitInfo:GetLevelText()
-	local targetText = addon.UnitInfo:GetTargetText()
-	local statusText = addon.UnitInfo:GetStatusText()
-	local classText = addon.UnitInfo:GetClassificationText()
+	local level = addon.UnitInfo:GetLevelText()
+	local targetName = addon.UnitInfo:GetTargetText()
+	local status = addon.UnitInfo:GetStatusText()
+	local classification = addon.UnitInfo:GetClassificationText()
+	local guild = addon.UnitInfo:GetGuildText()
+	local faction = addon.UnitInfo:GetFactionText()
+	local race = addon.UnitInfo:GetRaceText()
+	local creatureType = addon.UnitInfo:GetCreatureType()
 	local tooltips = addon.Utils:GetTooltipData()
 
-	local mainText = levelText .. unitText .. targetText
-	local headerText = statusText .. classText
+	local mainText = addon.Utils:CombineText(level, unitText, targetName)
+	local statusText = status
+	local headerText = addon.Utils:CombineText(faction, classification, creatureType, race)
+	local guildText = guild
+
 	f.mainText:SetText(mainText)
+	f.statusText:SetText(statusText)
 	f.headerText:SetText(headerText)
+	f.guildText:SetText(guildText)
 
 	addon.Utils:DebugLog(string.format("Unit: %s (%s)", mainText, headerText))
 
@@ -47,7 +100,11 @@ local function UpdateFrameContents(f)
 	height = math.max(1, height + (12 * subCount))
 	f:SetSize(width, height)
 	f.mainText:SetPoint("TOP", f, "TOP", 0, offset)
-	f.headerText:SetPoint("TOPLEFT", f.mainText, "TOPLEFT", 0, 12)
+
+	local top = 0
+	if addon.Utils:IsNotEmpty(guildText) then top = SetAnchor(f.guildText, f.mainText, "TOPLEFT", top) end
+	if addon.Utils:IsNotEmpty(headerText) then top = SetAnchor(f.headerText, f.mainText, "TOPLEFT", top) end
+	if addon.Utils:IsNotEmpty(statusText) then top = SetAnchor(f.statusText, f.mainText, "TOPLEFT", top) end
 	f.subText:SetPoint("BOTTOMLEFT", f.mainText, "BOTTOMLEFT", 12, -1 + (-12 * subCount))
 
 	f:Show()
@@ -64,19 +121,26 @@ local function UpdateFramePosition(f)
 	f:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x / scale, y / scale + 15)
 end
 
-
 local frame = CreateFrame("Frame", "HoverNameFrame", UIParent)
 frame:SetFrameStrata("TOOLTIP")
 --frame.texture = frame:CreateTexture()
 --frame.texture:SetAllPoints(frame)
 --frame.texture:SetTexture("Interface/BUTTONS/WHITE8X8")
+
 frame.mainText = frame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-frame.mainText:SetFont("Interface\\AddOns\\HoverName\\Fonts\\Expressway.ttf", 14, "OUTLINE")
+frame.statusText = frame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
 frame.headerText = frame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-frame.headerText:SetFont("Interface\\AddOns\\HoverName\\Fonts\\Expressway.ttf", 11, "OUTLINE")
+frame.guildText = frame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
 frame.subText = frame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-frame.subText:SetFont("Interface\\AddOns\\HoverName\\Fonts\\Expressway.ttf", 11, "OUTLINE")
 
 frame:SetScript("OnUpdate", function(self) UpdateFramePosition(self) end)
 frame:SetScript("OnEvent", function(self) UpdateFrameContents(self) end)
 frame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+
+
+function HoverName.UpdateFrame()
+	pcall(function() UpdateFrameFonts(frame) end)
+end
+
+addon.HoverName = HoverName
+return HoverName

@@ -15,6 +15,7 @@
 Libraries\Load_Libraries.xml
 Init.lua
 Modules\Utils.lua
+Modules\Fonts.lua
 Modules\UnitInfo.lua
 Modules\QuestInfo.lua
 Modules\Settings.lua

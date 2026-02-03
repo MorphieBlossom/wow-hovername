@@ -8,11 +8,15 @@ local function clamp255(x)
   return math.floor(x * 255 + 0.5)
 end
 
+function Utils:IsNotEmpty(val)
+	return val ~= nil and val ~= ""
+end
+
 function Utils:GetTextWithColor(text, color)
 	local r = clamp255(color and color.r or 1)
   local g = clamp255(color and color.g or 1)
   local b = clamp255(color and color.b or 1)
-  return string.format("|cFF%02x%02x%02x%s |r", r, g, b, text)
+  return string.format("|cFF%02x%02x%02x%s|r", r, g, b, text)
 end
 
 function Utils:DebugLog(logText)
@@ -22,6 +26,19 @@ function Utils:DebugLog(logText)
   end
 
   print(string.format("|cffff8000%s|r |cff00ffff[Debug]|r: %s", addonName, logText))
+end
+
+function Utils:CombineText(...)
+  local parts = {}
+
+  for i = 1, select("#", ...) do
+    local v = select(i, ...)
+    if v and v ~= "" then
+      parts[#parts+1] = tostring(v)
+    end
+  end
+
+  return table.concat(parts, " ")
 end
 
 function Utils:CombineTables(table1, table2)
