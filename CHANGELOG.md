@@ -1,14 +1,25 @@
-# Changelog
+﻿# Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `12.0.0.3` (2026-02-04)
+**New**
+- Added this whole new fancy option menu where you can configure what you want to see on hover.
+- Added option to change the font size of the hover text.
+- Added option to choose the font type, available options are loaded from other installed fonts and addons (shared library).
+- Added option to display Guild name + rank for player targets.
+- Added option to display race for player targets.
+- Added option to display faction for player and NPC targets.
+- Added option to display the creature Type for NPC targets.
+- Added option to hide the completed quest objectives from the hover text.
+
+---
 ### `12.0.0.2` (2026-01-24)
-**Bug fixes**
-- Changed previous fix to be more effective; it seems that Blizzard's code is not working properly
-that when leaving instance it still flags values as secrets while it shouldn't.
+**Fixes**
+- Changed previous fix to be more effective; it seems that Blizzard's code is not working properly that when leaving instance it still flags values as secrets while it shouldn't.
 
 ---
 ### `12.0.0.1` (2026-01-23)
-**Bug fixes**
+**Fixes**
 - Fixed issue that the hovering no longer worked in instances (Blizzard's combat addon purge).
 
 ---
@@ -65,7 +76,7 @@ Sorted based on completion; once all objectives are complete the displayed objec
 
 ---
 ### `11.0.7.1` (2025-02-02)
-**New things**
+**New**
 - Targets that are part of an active (world) quest will now have that quest objective displayed.
 Those that are part of a "progress" quest will also display the amount of percentage they will yield
 towards the total progress (thanks to the ObjectiveProgress library).
@@ -87,7 +98,7 @@ towards the total progress (thanks to the ObjectiveProgress library).
 
 ---
 ### `11.0.0.3` (2024-08-02)
-**New things**
+**New**
 - Added now also display text for unit classification - e.g. World Boss, Elite, Rare and Rare Elite. These are displayed above the level and name.
 - Added a new status "pvp" - which will be displayed if a player has pvp enabled.
 

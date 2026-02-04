@@ -72,7 +72,7 @@ local function UpdateFrameContents(f)
 	f.headerText:SetText(headerText)
 	f.guildText:SetText(guildText)
 
-	addon.Utils:DebugLog(string.format("Unit: %s (%s)", mainText, headerText))
+	addon.Utils:DebugLog(string.format("Unit: %s (%s)", mainText or "", headerText or ""))
 
 	local offset = 0
 	local subTexts = addon.Utils:CombineTables(addon.QuestInfo:GetQuestText("mouseover", tooltips))

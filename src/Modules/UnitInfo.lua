@@ -76,11 +76,11 @@ function UnitInfo:GetTargetText()
 end
 
 function UnitInfo:GetStatusText(fakeAfk, fakeDnd, fakePvp)
-	if not IsPlayer() or not IsActive("Player_ShowStatus") then return "" end
+	if not IsPlayer() or not IsActive("Player_ShowStatus") then return nil end
 
-	local afkText = ""
-	local dndText = ""
-	local pvpText = ""
+	local afkText = nil
+	local dndText = nil
+	local pvpText = nil
 
 	if (UnitIsAFK("mouseover") or fakeAfk) then afkText = addon.Utils:GetTextWithColor("<AFK>", addon.COLOR_DEAD) end
 	if (UnitIsDND("mouseover") or fakeDnd) then dndText = addon.Utils:GetTextWithColor("<DND>", addon.COLOR_HOSTILE) end
@@ -88,11 +88,11 @@ function UnitInfo:GetStatusText(fakeAfk, fakeDnd, fakePvp)
 		pvpText = addon.Utils:GetTextWithColor("<PVP>",	addon.COLOR_HOSTILE)
 	end
 
-	return (afkText .. dndText .. pvpText)
+	return addon.Utils:CombineText(afkText, dndText, pvpText)
 end
 
 function UnitInfo:GetClassificationText()
-	if IsPlayer() or not IsActive("NPC_ShowClassification") then return "" end
+	if IsPlayer() or not IsActive("NPC_ShowClassification") then return nil end
 
 	local classification = UnitClassification("mouseover")
 	if (classification == "worldboss") then
@@ -104,16 +104,16 @@ function UnitInfo:GetClassificationText()
 	elseif (classification == "rare") then
 		return addon.Utils:GetTextWithColor("Rare", addon.COLOR_RARE)
 	else
-		return ""
+		return nil
 	end
 end
 
 function UnitInfo:GetGuildText()
-	if not IsPlayer() then return "" end
-	if not IsActive("Player_ShowGuildName") and not IsActive("Player_ShowGuildRank") then return "" end
+	if not IsPlayer() then return nil end
+	if not IsActive("Player_ShowGuildName") and not IsActive("Player_ShowGuildRank") then return nil end
 
 	local guildName, guildRank = GetGuildInfo("mouseover")
-	if not guildName then return "" end
+	if not guildName then return nil end
 
 	local text = ""
 	if IsActive("Player_ShowGuildName") then
@@ -123,13 +123,15 @@ function UnitInfo:GetGuildText()
 		if text ~= "" then text = text .. " " end
 		text = text .. "[" ..  addon.Utils:GetTextWithColor(guildRank, addon.COLOR_GUILD) .. "]"
 	end
+
+	if (text == "") then return nil end
 	return text
 end
 
 function UnitInfo:GetFactionText()
 	local isPlayer = IsPlayer()
-	if isPlayer and not IsActive("Player_ShowFaction") then return "" end
-	if not isPlayer and not IsActive("NPC_ShowFaction") then return "" end
+	if isPlayer and not IsActive("Player_ShowFaction") then return nil end
+	if not isPlayer and not IsActive("NPC_ShowFaction") then return nil end
 
 	local factionLabel, faction = UnitFactionGroup("mouseover")
 	if factionLabel then
@@ -141,29 +143,29 @@ function UnitInfo:GetFactionText()
 			return addon.Utils:GetTextWithColor(factionLabel, addon.COLOR_NEUTRAL)
 		end
 	else
-		return ""
+		return nil
 	end
 end
 
 function UnitInfo:GetRaceText()
-	if not IsPlayer() or not IsActive("Player_ShowRace") then return "" end
+	if not IsPlayer() or not IsActive("Player_ShowRace") then return nil end
 
 	local race = UnitRace("mouseover")
 	if race then
 		return addon.Utils:GetTextWithColor(race, addon.COLOR_DEFAULT)
 	else
-		return ""
+		return nil
 	end
 end
 
 function UnitInfo:GetCreatureType()
-	if IsPlayer() or not IsActive("NPC_ShowCreatureType") then return "" end
+	if IsPlayer() or not IsActive("NPC_ShowCreatureType") then return nil end
 
 	local t = UnitCreatureType("mouseover")
-	if t and t ~= "Not specified" then
+	if t and not issecretvalue(t) and t ~= "Not specified" then
 		return addon.Utils:GetTextWithColor(t, addon.COLOR_DEFAULT)
 	else
-		return ""
+		return nil
 	end
 end
 

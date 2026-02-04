@@ -3,6 +3,7 @@ local Settings = {}
 
 -- Internal helper for printing setting changes or logs
 local function Log(setting, value, isError)
+  if setting == nil or setting.Hide then return end
   if isError == nil then isError = false end
   local prefix = string.format("|cffff8000%s|r", addonName)
   local nameText = string.format("|cff00ffff%s %s|r", setting.Group, setting.Name)
@@ -26,6 +27,23 @@ Settings.definitions = {
     Group = "General",
     Type = "checkbox",
     Default = false,
+    Hide = true,
+  },
+  {
+    Key = "GetNotified",
+    Name = "Notify me on updates",
+    Description = "Enable notifications for (important) updates of newly added features",
+    Group = "General",
+    Type = "checkbox",
+    Default = true,
+    Hide = true,
+  },
+  {
+    Key = "LastSeenVersion",
+    Name = "Last seen version",
+    Group = "General",
+    Type = "text",
+    Default = "",
     Hide = true,
   },
   {

@@ -27,6 +27,7 @@ addon.ICON_CHECKMARK = "|TInterface\\RaidFrame\\ReadyCheck-Ready:11|t"
 addon.ICON_LIST = "- "
 addon.VERSION = C_AddOns.GetAddOnMetadata(addonName, "Version")
 addon.NAME = C_AddOns.GetAddOnMetadata(addonName, "Title")
+addon.DESCRIPTION = C_AddOns.GetAddOnMetadata(addonName, "Notes")
 addon.AUTHOR = C_AddOns.GetAddOnMetadata(addonName, "Author")
 
 -- Define additional configurable slash commands here; /addonName is always registered
@@ -41,6 +42,11 @@ initFrame:SetScript("OnEvent", function(self, event, name)
     _G[dbName] = _G[dbName] or {}
     addon.DB = _G[dbName]
     addon.Settings:Init()
+
+    -- Trigger the Update Notification
+    if addon.Notifications and addon.Notifications.CheckForUpdatePopup then
+      C_Timer.After(2, function() addon.Notifications:CheckForUpdatePopup() end)
+    end
 
     -- Clean up the temporary frame
     self:UnregisterEvent("ADDON_LOADED")

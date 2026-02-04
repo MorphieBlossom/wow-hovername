@@ -1,25 +1,34 @@
 ## Interface: 120000, 120001
-## Version: 12.0.0.2
-
-## X-Flavor: retail
-## X-Expansion: TWW
-## X-Curse-Project-ID: 1071886
-## X-Wago-ID: BNBe9xGx
+## Version: 12.0.0.3
+## X-Date: 2026-02-04
 
 ## Title: HoverName
 ## Author: MorphieBlossom (Morphenia AD-EU)
-## Previous-Authors: Original Nightcracker & Narfi (DieAldor-EU)
 ## Notes: Addon that shows the names of players and NPC's if you hover over them
+## Category: User Interface
 ## SavedVariables: HoverNameData
+## IconTexture: Interface\AddOns\HoverName\Media\hovername-icon.png
 
-Libraries\Load_Libraries.xml
+## X-Flavor: retail
+## X-Expansion: TWW
+## X-Github: https://github.com/MorphieBlossom/wow-hovername
+## X-Curse-Project-ID: 1071886
+## X-CurseForge: https://www.curseforge.com/wow/addons/hovername
+## X-Wago-ID: BNBe9xGx
+## X-Wago: https://addons.wago.io/addons/hovername
+
+## X-PrevAuthor1: Nightcracker
+## X-PrevAuthor2: Narfi (DieAldor-EU)
+
 Init.lua
+Libraries\Load_Libraries.xml
 Modules\Utils.lua
 Modules\Fonts.lua
+Modules\Settings.lua
+Modules\Changelog.lua
 Modules\UnitInfo.lua
 Modules\QuestInfo.lua
-Modules\Settings.lua
-Modules\OptionsScreen.lua
-Modules\ConfigScreen.lua
 Modules\Commands.lua
+Modules\Notifications.lua
+Modules\OptionsScreen.lua
 Modules\HoverName.lua

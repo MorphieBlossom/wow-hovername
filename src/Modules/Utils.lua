@@ -9,7 +9,7 @@ local function clamp255(x)
 end
 
 function Utils:IsNotEmpty(val)
-	return val ~= nil and val ~= ""
+	return val ~= nil and (issecretvalue(val) or val ~= "")
 end
 
 function Utils:GetTextWithColor(text, color)
@@ -29,16 +29,18 @@ function Utils:DebugLog(logText)
 end
 
 function Utils:CombineText(...)
-  local parts = {}
+  local combined = nil
 
   for i = 1, select("#", ...) do
     local v = select(i, ...)
-    if v and v ~= "" then
-      parts[#parts+1] = tostring(v)
+    if self:IsNotEmpty(v) then
+      local s = tostring(v)
+      if combined then combined = combined .. " " .. s
+      else combined = s end
     end
   end
 
-  return table.concat(parts, " ")
+  return combined
 end
 
 function Utils:CombineTables(table1, table2)
@@ -98,6 +100,39 @@ function Utils:IsInTooltip(tooltipLines, query)
     if string.find(string.lower(line or ""), q, 1, true) then return true end
   end
   return false
+end
+
+function Utils:CreateCopyableLink(parent, label, text, anchor, offsetX, offsetY)
+    local row = CreateFrame("Frame", nil, parent)
+    row:SetSize(500, 24)
+    row:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", offsetX, offsetY)
+
+    local labelFS = row:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    labelFS:SetPoint("LEFT", 0, 0)
+    labelFS:SetText(label)
+    labelFS:SetWidth(100) -- This forces all labels to have the same width
+    labelFS:SetJustifyH("LEFT")
+
+    local eb = CreateFrame("EditBox", nil, row, "InputBoxTemplate")
+    eb:SetPoint("LEFT", labelFS, "RIGHT", 5, 0)
+    eb:SetPoint("RIGHT", parent, "RIGHT", -20, 0) -- Stretches to full width
+    eb:SetHeight(20)
+    eb:SetText(text)
+    eb:SetAutoFocus(false)
+    eb:SetFontObject("GameFontHighlightSmall")
+    eb:SetScript("OnEditFocusGained", function(self) self:HighlightText() end)
+    eb:SetScript("OnChar", function(self) self:SetText(text) end)
+
+    return row
+end
+
+function Utils:CreateSeparator(parent, anchor, offsetX, offsetY)
+  local line = parent:CreateTexture(nil, "ARTWORK")
+  line:SetHeight(1)
+  line:SetPoint("TOPLEFT", anchor, "TOPLEFT", offsetX, offsetY)
+  line:SetPoint("TOPRIGHT", anchor, "TOPRIGHT", -offsetX, offsetY)
+  line:SetColorTexture(1, 1, 1, 0.2)
+  return line
 end
 
 -- Expose module

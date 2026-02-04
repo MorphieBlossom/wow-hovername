@@ -23,7 +23,7 @@ Commands.list = {
     func = function()
       PrintCommand("help", string.format("- Available commands (%s)", cDef))
       for cmd, info in pairs(Commands.list) do
-        print(string.format("- |cff00ff00%s|r > %s", cmd, info.desc))
+        print(Commands:GetFormattedCommandStr(cmd, info.desc))
       end
       return true
     end,
@@ -80,6 +80,22 @@ SlashCmdList[addonName:upper()] = function(input)
   else
     if not handler.func(arg) then PrintUsage(cmd) end
   end
+end
+
+function Commands:GetTriggers()
+  local triggers = {}
+  local prefix = "SLASH_" .. addonName:upper()
+  local i = 1
+  while _G[prefix .. i] do
+    table.insert(triggers, _G[prefix .. i])
+    i = i + 1
+  end
+  return triggers
+end
+
+function Commands:GetFormattedCommandStr(cmd, desc)
+  -- This centralizes the "- cmd > desc" look
+  return string.format("- |cff00ff00%s|r > %s", cmd, desc or "")
 end
 
 -- Expose module
