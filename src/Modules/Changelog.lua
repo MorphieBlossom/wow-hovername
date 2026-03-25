@@ -3,6 +3,15 @@ local _, addon = ...
 local Changelog = {}
 Changelog.list = {
   {
+    version = "12.0.0.4",
+    date = "2026-03-25",
+    categories = {
+      ["Fixes"] = {
+        "Fixed several issues caused by Blizzards recent API changes to prevents certain information to be read or manipulated during combat. In this case the AFK, DND and PVP status of players, and tooltip information.",
+      }
+    }
+  },
+  {
     version = "12.0.0.3",
     date = "2026-02-04",
     categories = {

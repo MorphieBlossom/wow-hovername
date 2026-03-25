@@ -75,16 +75,19 @@ function UnitInfo:GetTargetText()
 	end
 end
 
-function UnitInfo:GetStatusText(fakeAfk, fakeDnd, fakePvp)
+function UnitInfo:GetStatusText()
 	if not IsPlayer() or not IsActive("Player_ShowStatus") then return nil end
 
 	local afkText = nil
 	local dndText = nil
 	local pvpText = nil
+	local isAfk = UnitIsAFK("mouseover")
+	local isDnd = UnitIsDND("mouseover")
+	local isPvp = UnitIsPVP("mouseover")
 
-	if (UnitIsAFK("mouseover") or fakeAfk) then afkText = addon.Utils:GetTextWithColor("<AFK>", addon.COLOR_DEAD) end
-	if (UnitIsDND("mouseover") or fakeDnd) then dndText = addon.Utils:GetTextWithColor("<DND>", addon.COLOR_HOSTILE) end
-	if ((UnitIsPVP("mouseover") and UnitIsPlayer("mouseover")) or fakePvp) then
+	if (not issecretvalue(isAfk) and isAfk) then afkText = addon.Utils:GetTextWithColor("<AFK>", addon.COLOR_DEAD) end
+	if (not issecretvalue(isDnd) and isDnd) then dndText = addon.Utils:GetTextWithColor("<DND>", addon.COLOR_HOSTILE) end
+	if (not issecretvalue(isPvp) and isPvp and UnitIsPlayer("mouseover")) then
 		pvpText = addon.Utils:GetTextWithColor("<PVP>",	addon.COLOR_HOSTILE)
 	end
 
