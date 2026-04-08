@@ -3,8 +3,20 @@ local _, addon = ...
 local Changelog = {}
 Changelog.list = {
   {
+    version = "12.0.0.5",
+    date = "2026-04-08",
+    notify = false,
+    categories = {
+      ["Fixes"] = {
+        "Fixed issue with QuestInfo for targets inside instances (secret value).",
+        "Fixed issue that caused the start up notification to be popped for release notes that are not that interested.",
+      }
+    }
+  },
+  {
     version = "12.0.0.4",
     date = "2026-03-25",
+    notify = false,
     categories = {
       ["Fixes"] = {
         "Fixed several issues caused by Blizzards recent API changes to prevents certain information to be read or manipulated during combat. In this case the AFK, DND and PVP status of players, and tooltip information.",
@@ -14,6 +26,7 @@ Changelog.list = {
   {
     version = "12.0.0.3",
     date = "2026-02-04",
+    notify = true,
     categories = {
       ["New"] = {
         "Added this whole new fancy option menu where you can configure what you want to see on hover.",
@@ -30,6 +43,7 @@ Changelog.list = {
   {
     version = "12.0.0.2",
     date = "2026-01-24",
+    notify = false,
     categories = {
       ["Fixes"] = {
         "Changed previous fix to be more effective; it seems that Blizzard's code is not working properly when leaving instance.",
@@ -39,6 +53,7 @@ Changelog.list = {
   {
     version = "12.0.0.1",
     date = "2026-01-23",
+    notify = false,
     categories = {
       ["Fixes"] = {
         "Fixed issue that the hovering no longer worked in instances (Blizzard's combat addon purge).",
@@ -48,6 +63,7 @@ Changelog.list = {
   {
     version = "12.0.0.0",
     date = "2026-01-15",
+    notify = false,
     categories = {
       ["Version update"] = {
         "Updated to game version 12.0.0",
@@ -57,6 +73,7 @@ Changelog.list = {
   {
     version = "11.2.7.0",
     date = "2025-12-02",
+    notify = false,
     categories = {
       ["Version update"] = {
         "Updated to game version 11.2.7",
@@ -66,6 +83,7 @@ Changelog.list = {
   {
     version = "11.2.0.1",
     date = "2025-09-07",
+    notify = false,
     categories = {
       ["Improvements"] = {
         "Split up some code into separate modules, making it easier to build in legacy WoW-API support.",
@@ -76,6 +94,7 @@ Changelog.list = {
   {
     version = "11.2.0.0",
     date = "2025-07-23",
+    notify = false,
     categories = {
       ["Version update"] = {
         "Updated to game version 11.2.0",
@@ -85,6 +104,7 @@ Changelog.list = {
   {
     version = "11.1.7.1",
     date = "2025-05-31",
+    notify = false,
     categories = {
       ["General"] = {
         "Update TOC to include Curse and Wago IDs. Removed Library TOC file.",
@@ -94,6 +114,7 @@ Changelog.list = {
   {
     version = "11.1.7.0",
     date = "2025-05-31",
+    notify = false,
     categories = {
       ["Version update"] = {
         "Updated to game version 11.1.7",
@@ -109,6 +130,7 @@ Changelog.list = {
   {
     version = "11.1.5.0",
     date = "2025-04-22",
+    notify = false,
     categories = {
       ["Version update"] = {
         "Updated to game version 11.1.5",
@@ -118,6 +140,7 @@ Changelog.list = {
   {
     version = "11.1.0.0",
     date = "2025-02-20",
+    notify = false,
     categories = {
       ["Version update"] = {
         "Updated to game version 11.1.0",
@@ -127,6 +150,7 @@ Changelog.list = {
   {
     version = "11.0.7.2",
     date = "2025-02-03",
+    notify = false,
     categories = {
       ["Improvements"] = {
         "For targets that are counting to multiple objectives it will now show all of them. Sorted based on completion.",
@@ -136,6 +160,7 @@ Changelog.list = {
   {
     version = "11.0.7.1",
     date = "2025-02-02",
+    notify = false,
     categories = {
       ["New"] = {
         "Targets that are part of an active (world) quest will now have that quest objective displayed.",
@@ -146,6 +171,7 @@ Changelog.list = {
   {
     version = "11.0.7.0",
     date = "2024-12-20",
+    notify = false,
     categories = {
       ["Version update"] = {
         "Updated to game version 11.0.7",
@@ -155,6 +181,7 @@ Changelog.list = {
   {
     version = "11.0.5.0",
     date = "2024-10-23",
+    notify = false,
     categories = {
       ["Version update"] = {
         "Updated to game version 11.0.5",
@@ -164,6 +191,7 @@ Changelog.list = {
   {
     version = "11.0.0.4",
     date = "2024-08-02",
+    notify = false,
     categories = {
       ["Fixes"] = {
         "Fixed issue that caused in some cases the text to never be displayed at all.",
@@ -173,6 +201,7 @@ Changelog.list = {
   {
     version = "11.0.0.3",
     date = "2024-08-02",
+    notify = false,
     categories = {
       ["New"] = {
         "Added display text for unit classification (World Boss, Elite, Rare, etc) above the level/name.",
@@ -191,6 +220,7 @@ Changelog.list = {
   {
     version = "11.0.0.2",
     date = "2024-07-27",
+    notify = false,
     categories = {
       ["Improvements"] = {
         "Updated addon version to match WoW version: [warcraft version].[addon build].",
@@ -203,6 +233,7 @@ Changelog.list = {
   {
     version = "1.1",
     date = "2024-07-26",
+    notify = false,
     categories = {
       ["General"] = {
         "Re-created the project.",

@@ -79,10 +79,13 @@ function QuestInfo:GetQuestText(unit, tooltipLines)
 	end
 
   local unitName = UnitName(unit)
-  if not unitName or unitName == "" then return nil end
+  if not unitName or (not issecretvalue(unitName) and unitName == "") then return nil end
 
   local questTexts = {}
-	local targetName = string.lower(unitName)
+  local targetName = nil
+  if not issecretvalue(unitName) then
+    targetName = string.lower(unitName)
+  end
   tooltipLines = tooltipLines or {}
 
   local weightsTable

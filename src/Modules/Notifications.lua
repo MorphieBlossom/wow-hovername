@@ -30,9 +30,23 @@ function Notifications:CheckForUpdatePopup()
     addon.Settings:Set("LastSeenVersion", currentVersion)
 
     if notifyEnabled then
-      -- Generic message instead of pulling specific changelog lines
-      local summary = "|cffccccccNew features have been added in this version. Check out the release notes for what is changed.|r\n\n"
-      StaticPopup_Show("HOVERNAME_RELEASE_NOTES", summary)
+      -- Only show popup when there are unseen changelog entries that have notify = true
+      local changelist = (addon.Changelog and addon.Changelog.list) or {}
+      local shouldNotify = false
+
+      for i, entry in ipairs(changelist) do
+        if lastSeen == nil then
+          if entry.notify then shouldNotify = true; break end
+        else
+          if entry.version == lastSeen then break end
+          if entry.notify then shouldNotify = true; break end
+        end
+      end
+
+      if shouldNotify then
+        local summary = "|cffccccccNew features have been added in this version. Check out the release notes for what is changed.|r\n\n"
+        StaticPopup_Show("HOVERNAME_RELEASE_NOTES", summary)
+      end
     end
   end
 end

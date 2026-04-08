@@ -51,13 +51,17 @@ function Utils:CombineTables(table1, table2)
 end
 
 function Utils:GetNpcID(unit)
-	local guid = UnitGUID(unit)
-	local npcID = guid and select(6, strsplit("-", guid))
-	if not npcID or npcID == "" then
-		return nil
-	else
-		return tonumber(npcID)
-	end
+  local guid = UnitGUID(unit)
+  if not guid or issecretvalue(guid) then
+    return nil
+  end
+
+  local npcID = select(6, strsplit("-", guid))
+  if not npcID or npcID == "" then
+    return nil
+  else
+    return tonumber(npcID)
+  end
 end
 
 function Utils:GetTooltipData()
