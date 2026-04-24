@@ -3,6 +3,16 @@ local _, addon = ...
 local Changelog = {}
 Changelog.list = {
   {
+    version = "12.0.5.0",
+    date = "2026-04-24",
+    notify = false,
+    categories = {
+      ["Version update"] = {
+        "Updated to game version 12.0.5",
+      }
+    }
+  },
+  {
     version = "12.0.0.5",
     date = "2026-04-08",
     notify = false,

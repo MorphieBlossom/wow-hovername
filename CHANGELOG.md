@@ -1,6 +1,11 @@
 ﻿# Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `12.0.5.0` (2026-04-24)
+**Version update**
+- Updated to game version 12.0.5
+
+---
 ### `12.0.0.5` (2026-04-08)
 **Fixes**
 - Fixed issue with QuestInfo for targets inside instances (secret value).
