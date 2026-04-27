@@ -1,6 +1,36 @@
 local addonName, addon = ...
 local OptionsScreen = {}
 
+local function GetDefaultValueLabel(def)
+  if not def then return "" end
+
+  if def.Type == "dropdown" and def.Options and #def.Options > 0 then
+    for _, opt in ipairs(def.Options) do
+      if type(opt) == "table" and opt.value ~= nil and opt.name ~= nil then
+        if opt.value == def.Default then
+          return tostring(opt.name)
+        end
+      elseif opt == def.Default then
+        return tostring(opt)
+      end
+    end
+  end
+
+  return tostring(def.Default)
+end
+
+local function BuildSettingDescription(def)
+  local base = def.Description or ""
+  local defaultLabel = GetDefaultValueLabel(def)
+  local suffix = "(Default: " .. defaultLabel .. ")"
+
+  if base == "" then
+    return suffix
+  end
+
+  return base .. "\n" .. suffix
+end
+
 local function CreateCommandList(parent, anchor, startOffsetX, startOffsetY)
   local triggers = addon.Commands:GetTriggers()
   local usageText = "Usage: " .. table.concat(triggers, " [command] or ") .. " [command]"
@@ -109,6 +139,7 @@ local function CreateSettingsCategory(parent)
 
         for _, def in ipairs(visible) do
           local variable = addonName .. "_" .. def.Key
+          local settingDescription = BuildSettingDescription(def)
           local setting = Settings.RegisterProxySetting(
             category,
             variable,
@@ -120,17 +151,21 @@ local function CreateSettingsCategory(parent)
           )
 
           if def.Type == "checkbox" then
-            Settings.CreateCheckbox(category, setting, def.Description)
+            Settings.CreateCheckbox(category, setting, settingDescription)
 
           elseif def.Type == "dropdown" then
             local function GetOptions()
               local container = Settings.CreateControlTextContainer()
               for _, opt in ipairs(def.Options or {}) do
-                container:Add(opt, tostring(opt))
+                if type(opt) == "table" and opt.name and opt.value then
+                  container:Add(opt.value, opt.name)
+                else
+                  container:Add(opt, tostring(opt))
+                end
               end
               return container:GetData()
             end
-            Settings.CreateDropdown(category, setting, GetOptions, def.Description)
+            Settings.CreateDropdown(category, setting, GetOptions, settingDescription)
 
           elseif def.Type == "slider" then
             local minValue = def.Min or 0
@@ -138,7 +173,7 @@ local function CreateSettingsCategory(parent)
             local step = def.Step or 1
             local options = Settings.CreateSliderOptions(minValue, maxValue, step)
             options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
-            Settings.CreateSlider(category, setting, options, def.Description)
+            Settings.CreateSlider(category, setting, options, settingDescription)
           end
         end
       end

@@ -1,6 +1,17 @@
 ﻿# Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `12.0.5.1` (2026-04-27)
+**New**
+- Added option to configure desired font outline for the displayed text.
+- Added option to configure background color, transparency and padding for the displayed text.
+- Added option to choose cursor anchor direction and distance for the text positioning.
+
+**Improvements**
+- Improved setting logs for sliders by debouncing output to avoid chat spam during dragging.
+- Improved setting tooltips to include the default value for the setting.
+
+---
 ### `12.0.5.0` (2026-04-24)
 **Version update**
 - Updated to game version 12.0.5

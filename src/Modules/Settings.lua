@@ -1,23 +1,6 @@
 local addonName, addon = ...
 local Settings = {}
-
--- Internal helper for printing setting changes or logs
-local function Log(setting, value, isError)
-  if setting == nil or setting.Hide then return end
-  if isError == nil then isError = false end
-  local prefix = string.format("|cffff8000%s|r", addonName)
-  local nameText = string.format("|cff00ffff%s %s|r", setting.Group, setting.Name)
-  local message
-
-  if isError then
-    -- For errors: "AddonName - Name: Message"
-    message = string.format("%s - %s: %s", prefix, nameText, string.format("|cffffff00%s|r", tostring(value)))
-  else
-    -- For normal logs: "AddonName - Name: changed to Value"
-    message = string.format("%s - %s changed to %s", prefix, nameText, string.format("|cffffff00%s|r", tostring(value)))
-  end
-  print(message)
-end
+local pendingSliderLogs = {}
 
 Settings.definitions = {
   {
@@ -47,6 +30,39 @@ Settings.definitions = {
     Hide = true,
   },
   {
+    Key = "Display_CursorAnchor",
+    Name = "Cursor Anchor",
+    Description = "Where the frame appears relative to the cursor.",
+    Group = "Display",
+    Type = "dropdown",
+    Options = {
+      { name = "Top", value = "TOP" },
+      { name = "Bottom", value = "BOTTOM" },
+      { name = "Left", value = "LEFT" },
+      { name = "Right", value = "RIGHT" },
+    },
+    Default = "TOP",
+    OnChange = function()
+      local f = addon.HoverName and addon.HoverName.UpdateFrame
+      if f then pcall(f) end
+    end,
+  },
+  {
+    Key = "Display_CursorDistance",
+    Name = "Cursor Distance",
+    Description = "Distance from the cursor anchor point.",
+    Group = "Display",
+    Type = "slider",
+    Min = 0,
+    Max = 200,
+    Step = 1,
+    Default = 4,
+    OnChange = function()
+      local f = addon.HoverName and addon.HoverName.UpdateFrame
+      if f then pcall(f) end
+    end,
+  },
+  {
     Key = "Display_FontSize",
     Name = "Font Size",
     Description = "Basic size of all texts displayed when hovering",
@@ -69,6 +85,89 @@ Settings.definitions = {
     Type = "dropdown",
     Options = { "Friz Quadrata TT" },
     Default = "Friz Quadrata TT",
+    OnChange = function()
+      local f = addon.HoverName and addon.HoverName.UpdateFrame
+      if f then pcall(f) end
+    end,
+  },
+  {
+    Key = "Display_FontOutline",
+    Name = "Font Outline",
+    Description = "Outline style for hover name text (if supported by the font)",
+    Group = "Display",
+    Type = "dropdown",
+    Options = {
+      { name = "None", value = "NONE" },
+      { name = "Outline", value = "OUTLINE" },
+      { name = "Thick Outline", value = "THICKOUTLINE" },
+      { name = "Monochrome Outline", value = "MONOCHROMEOUTLINE" },
+    },
+    Default = "OUTLINE",
+    OnChange = function()
+      local f = addon.HoverName and addon.HoverName.UpdateFrame
+      if f then pcall(f) end
+    end,
+  },
+  {
+    Key = "Display_BackgroundEnabled",
+    Name = "Show Background",
+    Description = "Show a background behind the hover text.",
+    Group = "Display",
+    Type = "checkbox",
+    Default = false,
+    OnChange = function()
+      local f = addon.HoverName and addon.HoverName.UpdateFrame
+      if f then pcall(f) end
+    end,
+  },
+  {
+    Key = "Display_BackgroundColor",
+    Name = "Background Color",
+    Description = "The color of the background behind the hover text.",
+    Group = "Display",
+    Type = "dropdown",
+    Options = {
+      { name = "Black", value = "BLACK" },
+      { name = "White", value = "WHITE" },
+      { name = "Red", value = "RED" },
+      { name = "Blue", value = "BLUE" },
+      { name = "Green", value = "GREEN" },
+      { name = "Yellow", value = "YELLOW" },
+      { name = "Purple", value = "PURPLE" },
+      { name = "Orange", value = "ORANGE" },
+      { name = "Brown", value = "BROWN" },
+    },
+    Default = "BLACK",
+    OnChange = function()
+      local f = addon.HoverName and addon.HoverName.UpdateFrame
+      if f then pcall(f) end
+    end,
+  },
+  {
+    Key = "Display_BackgroundAlpha",
+    Name = "Background Transparency",
+    Description = "Transparency for the background (0 = fully transparent, 100 = fully opaque)",
+    Group = "Display",
+    Type = "slider",
+    Min = 0,
+    Max = 100,
+    Step = 1,
+    Default = 50,
+    OnChange = function()
+      local f = addon.HoverName and addon.HoverName.UpdateFrame
+      if f then pcall(f) end
+    end,
+  },
+  {
+    Key = "Display_BackgroundPadding",
+    Name = "Background Padding",
+    Description = "Add additional padding around the background.",
+    Group = "Display",
+    Type = "slider",
+    Min = 0,
+    Max = 20,
+    Step = 1,
+    Default = 2,
     OnChange = function()
       local f = addon.HoverName and addon.HoverName.UpdateFrame
       if f then pcall(f) end
@@ -219,15 +318,6 @@ Settings.definitions = {
     Default = true,
   },
   {
-    Key = "Objects_ShowHoverable",
-    Name = "Show Hoverable",
-    Description = "Show names for hoverable objects",
-    Group = "Objects",
-    Type = "checkbox",
-    Default = false,
-    Hide = true,
-  },
-  {
     Key = "Integrations_Rarity",
     Name = "Rarity",
     Description = "Show information from the 'Rarity' addon when it is installed",
@@ -237,6 +327,68 @@ Settings.definitions = {
     Hide = true,
   },
 }
+
+local function GetOptionLabel(setting, value)
+  if not setting or not setting.Options then return value end
+  for _, opt in ipairs(setting.Options) do
+    if type(opt) == "table" and opt.name ~= nil and opt.value ~= nil then
+      if opt.value == value then return opt.name end
+    elseif opt == value then
+      return tostring(opt)
+    end
+  end
+  return value
+end
+
+local function IsDropdownValueValid(setting, value)
+  if not setting or not setting.Options or #setting.Options == 0 then
+    return true
+  end
+
+  for _, opt in ipairs(setting.Options) do
+    if type(opt) == "table" and opt.value ~= nil then
+      if opt.value == value then return true end
+    elseif opt == value then
+      return true
+    end
+  end
+
+  return false
+end
+
+-- Internal helper for printing setting changes or logs
+local function Log(setting, value, isError)
+  if setting == nil or setting.Hide then return end
+  if isError == nil then isError = false end
+  local displayValue = GetOptionLabel(setting, value)
+  local prefix = string.format("|cffff8000%s|r", addonName)
+  local nameText = string.format("|cff00ffff%s %s|r", setting.Group, setting.Name)
+  local message
+
+  if isError then
+    -- For errors: "AddonName - Name: Message"
+    message = string.format("%s - %s: %s", prefix, nameText, string.format("|cffffff00%s|r", tostring(displayValue)))
+  else
+    -- For normal logs: "AddonName - Name: changed to Value"
+    message = string.format("%s - %s changed to %s", prefix, nameText, string.format("|cffffff00%s|r", tostring(displayValue)))
+  end
+  print(message)
+end
+
+local function DebouncedSliderLog(key, setting, value)
+  local state = pendingSliderLogs[key] or { token = 0 }
+  state.token = state.token + 1
+  state.value = value
+  pendingSliderLogs[key] = state
+
+  local token = state.token
+  C_Timer.After(1, function()
+    local current = pendingSliderLogs[key]
+    if not current or current.token ~= token then return end
+    Log(setting, current.value)
+    pendingSliderLogs[key] = nil
+  end)
+end
 
 -- build helper maps
 Settings.byKey = {}
@@ -257,20 +409,32 @@ function Settings:Init()
   addon.DB.Settings = addon.DB.Settings or {}
 
   -- Populate font options via Fonts module (keeps Init cleaner)
-  if addon.Settings and addon.Settings.byKey and addon.Settings.byKey["Display_FontType"] and addon.Fonts and addon.Fonts.GetAvailableFonts then
-    local fonts, _ = addon.Fonts:GetAvailableFonts()
-    addon.Settings.byKey["Display_FontType"].Options = fonts
+  if addon.Settings and addon.Settings.byKey then
+    if addon.Settings.byKey["Display_FontType"] and addon.Fonts and addon.Fonts.GetAvailableFonts then
+      local fonts, _ = addon.Fonts:GetAvailableFonts()
+      addon.Settings.byKey["Display_FontType"].Options = fonts
+    end
+    -- Ensure font outline options are always present
+    if addon.Settings.byKey["Display_FontOutline"] then
+      addon.Settings.byKey["Display_FontOutline"].Options = {
+        { name = "None", value = "NONE" },
+        { name = "Outline", value = "OUTLINE" },
+        { name = "Thick Outline", value = "THICKOUTLINE" },
+        { name = "Monochrome Outline", value = "MONOCHROMEOUTLINE" },
+      }
+    end
   end
 
   -- Ensure selection defaults are valid and initialize saved settings
   for _, def in ipairs(self.definitions) do
-    if def.Type == "selection" and def.Options and #def.Options > 0 then
-      local ok = false
-      for _, opt in ipairs(def.Options) do
-        if opt == def.Default then ok = true break end
-      end
-      if not ok then
-        def.Default = def.Options[1]
+    if def.Type == "dropdown" and def.Options and #def.Options > 0 then
+      if not IsDropdownValueValid(def, def.Default) then
+        local first = def.Options[1]
+        if type(first) == "table" and first.value ~= nil then
+          def.Default = first.value
+        else
+          def.Default = first
+        end
       end
     end
 
@@ -300,20 +464,14 @@ function Settings:Set(key, value)
   local old = addon.DB.Settings[key]
 
   -- coerce/validate new value according to type
-  if def.Type == "number" then
+  if def.Type == "number" or def.Type == "slider" then
     value = tonumber(value) or def.Default
     if def.Min then value = math.max(def.Min, value) end
     if def.Max then value = math.min(def.Max, value) end
   elseif def.Type == "checkbox" then
     value = not not value
-  elseif def.Type == "selection" then
-    if def.Options and #def.Options > 0 then
-      local ok = false
-      for _, opt in ipairs(def.Options) do
-        if opt == value then ok = true break end
-      end
-      if not ok then value = def.Default end
-    end
+  elseif def.Type == "dropdown" then
+    if not IsDropdownValueValid(def, value) then value = def.Default end
   else
     if value ~= nil then value = tostring(value) end
   end
@@ -324,7 +482,11 @@ function Settings:Set(key, value)
   end
 
   addon.DB.Settings[key] = value
-  Log(def, value)
+  if def.Type == "slider" then
+    DebouncedSliderLog(key, def, value)
+  else
+    Log(def, value)
+  end
 
   -- Call any change callback defined on the setting def
   if def.OnChange then
