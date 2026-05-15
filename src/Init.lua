@@ -1,54 +1,23 @@
 local addonName, addon = ...
 
--- SavedVariables must be declared in .toc:
-local dbName = addonName .. "Data"
-addon.DB_Name = dbName
-
--- Expose libraries
-local LOP
+-- LibObjectiveProgress is HoverName-specific (used by QuestInfo); kept on addon directly.
+-- Not available on Mists Classic.
+addon.LOP = nil
 if type(LibStub) == "table" and type(LibStub.GetLibrary) == "function" then
-  LOP = LibStub:GetLibrary("LibObjectiveProgress-1.0", true)
+  addon.LOP = LibStub:GetLibrary("LibObjectiveProgress-1.0", true)
 end
-addon.LOP = LOP
 
--- Constant values
-addon.COLOR_ALLIANCE = { r = 0 / 255, g = 112 / 255, b = 221 / 255 }
-addon.COLOR_COMPLETE = { r = 136 / 255, g = 136 / 255, b = 136 / 255 }
-addon.COLOR_DEAD = { r = 136 / 255, g = 136 / 255, b = 136 / 255 }
-addon.COLOR_DEFAULT = { r = 1, g = 1, b = 1 }
-addon.COLOR_ELITE = { r = 213 / 255, g = 154 / 255, b = 18 / 255 }
-addon.COLOR_GUILD = { r = 24 / 255, g = 222 / 255, b = 0 }
-addon.COLOR_HORDE = { r = 1, g = 0, b = 0 }
-addon.COLOR_HOSTILE = { r = 1, g = 68 / 255, b = 68 / 255 }
-addon.COLOR_HOSTILE_UNATTACKABLE = { r = 210 / 255, g = 76 / 255, b = 56 / 255 }
-addon.COLOR_NEUTRAL = { r = 1, g = 1, b = 68 / 255 }
-addon.COLOR_RARE = { r = 226 / 255, g = 228 / 255, b = 226 / 255 }
-addon.ICON_CHECKMARK = "|TInterface\\RaidFrame\\ReadyCheck-Ready:11|t"
-addon.ICON_LIST = "- "
-addon.VERSION = C_AddOns.GetAddOnMetadata(addonName, "Version")
-addon.NAME = C_AddOns.GetAddOnMetadata(addonName, "Title")
-addon.DESCRIPTION = C_AddOns.GetAddOnMetadata(addonName, "Notes")
-addon.AUTHOR = C_AddOns.GetAddOnMetadata(addonName, "Author")
+-- Configure MBLib (loaded by Libraries\Load_Libraries.xml before this file)
+addon.MBLib:AddSlashTrigger("/hn")
+addon.MBLib:SetIcon("Interface\\AddOns\\" .. addonName .. "\\Media\\hovername-icon.png")
+addon.MBLib:SetPredecessor("ncHoverName")
 
--- Define additional configurable slash commands here; /addonName is always registered
-addon.COMMANDS_TRIGGERLIST = { "/hn" }
-
-
--- Create a temporary frame to register for the ADDON_LOADED event
+-- Bootstrap MBLib once SavedVariables are available
 local initFrame = CreateFrame("Frame")
 initFrame:RegisterEvent("ADDON_LOADED")
-initFrame:SetScript("OnEvent", function(self, event, name)
+initFrame:SetScript("OnEvent", function(self, _, name)
   if name == addonName then
-    _G[dbName] = _G[dbName] or {}
-    addon.DB = _G[dbName]
-    addon.Settings:Init()
-
-    -- Trigger the Update Notification
-    if addon.Notifications and addon.Notifications.CheckForUpdatePopup then
-      C_Timer.After(2, function() addon.Notifications:CheckForUpdatePopup() end)
-    end
-
-    -- Clean up the temporary frame
+    addon.MBLib:Init()
     self:UnregisterEvent("ADDON_LOADED")
     self:SetScript("OnEvent", nil)
   end

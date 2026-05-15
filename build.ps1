@@ -24,9 +24,37 @@ function Update-ChangelogFromLua {
   $existing = @()
   [regex]::Matches($md, '### `(?<v>[^`]+)`') | ForEach-Object { $existing += $_.Groups['v'].Value }
 
-  # Parse entries by locating each 'version = "..."' and extracting the enclosing table via brace counting
+  # Locate the changelog data block. Supports both styles:
+  #   addon.MBLib.Changelog:Set({ ... })       (MBLib-integrated)
+  #   Changelog.list = { ... }                  (legacy)
+  # Anchoring the version scan to this block prevents picking up unrelated
+  # 'version = "..."' strings elsewhere in the file.
+  $blockOpenMatch = [regex]::Match($lua, '(?:Changelog:Set\s*\(\s*|Changelog\.list\s*=\s*)\{')
+  if (-not $blockOpenMatch.Success) {
+    Write-Warning "Could not locate Changelog data block in $LuaPath (expected 'Changelog:Set({' or 'Changelog.list = {'). Skipping changelog sync."
+    return
+  }
+  $blockStart = $blockOpenMatch.Index + $blockOpenMatch.Length - 1  # position of the opening '{'
+  $depth0 = 0
+  $blockEnd = -1
+  for ($k = $blockStart; $k -lt $lua.Length; $k++) {
+    switch ($lua[$k]) {
+      '{' { $depth0++ }
+      '}' { $depth0-- }
+    }
+    if ($depth0 -eq 0) { $blockEnd = $k; break }
+  }
+  if ($blockEnd -lt 0) {
+    Write-Warning "Unterminated Changelog data block in $LuaPath; skipping changelog sync."
+    return
+  }
+  $luaBlock = $lua.Substring($blockStart, $blockEnd - $blockStart + 1)
+
+  # Parse entries by locating each 'version = "..."' inside the block and extracting
+  # the enclosing table via brace counting.
   $versionRegex = 'version\s*=\s*"(?<version>[^"]+)"'
-  $verMatches = [regex]::Matches($lua, $versionRegex)
+  $verMatches = [regex]::Matches($luaBlock, $versionRegex)
+  $lua = $luaBlock  # remainder of function operates on the block
 
   $newBlocks = ""
   foreach ($vm in $verMatches) {
@@ -114,6 +142,62 @@ function Update-ChangelogFromLua {
   Write-Host "Added changelog entries for versions: $($added -join ', ')"
 }
 
+# Sync the version + badge fields in README.md from a {flavor -> version} map.
+# Each README heading is of the form:
+#   ### Version 12.0.5.1 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-12.0.5-blue)
+# The full version updates the heading; the first three dot-separated segments
+# update the shields.io badge URL. Mists flavor lines are matched by the extra
+# 'Mists of Pandaria Classic' text in the heading.
+function Update-ReadmeFromTocs {
+  param(
+    [string]$ReadmePath = "./README.md",
+    [hashtable]$Versions
+  )
+
+  if (!(Test-Path $ReadmePath)) { Write-Verbose "README not found: $ReadmePath"; return }
+  if (-not $Versions -or $Versions.Count -eq 0) { return }
+
+  # PS 5.1's Get-Content -Raw on a no-BOM UTF-8 file decodes as Windows-1252 by default,
+  # corrupting any non-ASCII bytes (e.g. emoji) before we even start. Use .NET I/O with
+  # explicit UTF-8 to round-trip safely.
+  $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+  $content   = [System.IO.File]::ReadAllText($ReadmePath, [System.Text.Encoding]::UTF8)
+  $original  = $content
+  $missing   = @()
+
+  foreach ($flavor in $Versions.Keys) {
+    $fullVer = $Versions[$flavor]
+    $parts   = $fullVer -split '\.'
+    $shortVer = if ($parts.Count -ge 3) { ($parts[0..2] -join '.') } else { $fullVer }
+
+    if ($flavor -eq 'Retail') {
+      $pattern = '(?m)^(### Version )([\d\.]+)( - available for World of Warcraft )(!\[Version\]\(https://img\.shields\.io/badge/version-)([\d\.]+)(-blue\))'
+    } else {
+      $pattern = '(?m)^(### Version )([\d\.]+)( - available for World of Warcraft - ' + [regex]::Escape($flavor) + '[^!]*)(!\[Version\]\(https://img\.shields\.io/badge/version-)([\d\.]+)(-blue\))'
+    }
+
+    if (-not [regex]::IsMatch($content, $pattern)) {
+      $missing += $flavor
+      continue
+    }
+
+    $replacement = '${1}' + $fullVer + '${3}${4}' + $shortVer + '${6}'
+    $content = [regex]::Replace($content, $pattern, $replacement)
+  }
+
+  foreach ($m in $missing) {
+    Write-Warning "No version heading found in $ReadmePath for flavor '$m' (expected a line containing '### Version ... for World of Warcraft' and either no 'Mists...' suffix for Retail or that suffix for the matching flavor)."
+  }
+
+  if ($content -ne $original) {
+    [System.IO.File]::WriteAllText($ReadmePath, $content, $utf8NoBom)
+    $updated = @($Versions.Keys | Where-Object { $missing -notcontains $_ })
+    Write-Host "Updated README.md version heading(s): $($updated -join ', ')"
+  } else {
+    Write-Host "README.md already up to date"
+  }
+}
+
 # Run update before packaging to ensure CHANGELOG.md is in sync
 Update-ChangelogFromLua
 
@@ -124,7 +208,8 @@ if ($tocFiles.Count -eq 0) {
   exit 1
 }
 
-$built = @()
+$built       = @()
+$tocVersions = @{}
 
 foreach ($toc in $tocFiles) {
   # Derive suffix from TOC filename
@@ -138,6 +223,7 @@ foreach ($toc in $tocFiles) {
               Select-Object -First 1 -ExpandProperty Matches |
               ForEach-Object { $_.Groups[1].Value.Trim() })
   if ([string]::IsNullOrWhiteSpace($version)) { $version = "0.0.0" }
+  $tocVersions[$display] = $version
 
   # Temp working dirs
   $tempDir  = Join-Path $buildDir ("Temp_" + $projectName + $suffix)
@@ -194,6 +280,9 @@ foreach ($toc in $tocFiles) {
     if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
   }
 }
+
+# Sync the README.md version headings with the per-flavor versions read above
+Update-ReadmeFromTocs -Versions $tocVersions
 
 Write-Host ""
 Write-Host "Output:" -ForegroundColor Cyan

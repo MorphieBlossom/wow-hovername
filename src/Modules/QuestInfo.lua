@@ -2,8 +2,8 @@ local _, addon = ...
 QuestInfo = {}
 
 local function IsActive(setting)
-	if not (addon and addon.Settings and addon.Settings.Get) then return true end
-	local value = addon.Settings:Get(setting)
+	if not (addon and addon.MBLib.Settings and addon.MBLib.Settings.Get) then return true end
+	local value = addon.MBLib.Settings:Get(setting)
 	if value == nil then return true end
 	return value
 end
@@ -89,7 +89,7 @@ function QuestInfo:GetQuestText(unit, tooltipLines)
   tooltipLines = tooltipLines or {}
 
   local weightsTable
-  local npcID = addon.Utils:GetNpcID(unit)
+  local npcID = addon.MBLib.Utils:GetNpcID(unit)
   if npcID and addon.LOP and addon.LOP.GetNPCWeightByCurrentQuests then
     weightsTable = addon.LOP:GetNPCWeightByCurrentQuests(npcID)
   end
@@ -117,7 +117,7 @@ function QuestInfo:GetQuestText(unit, tooltipLines)
 
 						-- Alternatively, when this quest is displayed in the tooltips by any other addon,
 						-- then we can use that data as well
-						if addon.Utils:IsInTooltip(tooltipLines, obj.text) or addon.Utils:IsInTooltip(tooltipLines, StripQuestCount(obj.text)) then
+						if addon.MBLib.Utils:IsInTooltip(tooltipLines, obj.text) or addon.MBLib.Utils:IsInTooltip(tooltipLines, StripQuestCount(obj.text)) then
 							table.insert(questTexts, { text = obj.text, finished = obj.finished })
 							break
 						end
@@ -144,9 +144,9 @@ function QuestInfo:GetQuestText(unit, tooltipLines)
 	-- Convert sorted table to a final list of text entries
 	local sortedQuestTexts = {}
 	for _, entry in ipairs(questTexts) do
-		local color = entry.finished and addon.COLOR_COMPLETE or addon.COLOR_DEFAULT
-		local listIcon = entry.finished and addon.ICON_CHECKMARK or addon.ICON_LIST
-		table.insert(sortedQuestTexts, addon.Utils:GetTextWithColor(listIcon .. entry.text, color))
+		local color = entry.finished and addon.MBLib.COLOR_COMPLETE or addon.MBLib.COLOR_DEFAULT
+		local listIcon = entry.finished and addon.MBLib.ICON_CHECKMARK or addon.MBLib.ICON_LIST
+		table.insert(sortedQuestTexts, addon.MBLib.Utils:GetTextWithColor(listIcon .. entry.text, color))
 	end
 
 	return #sortedQuestTexts > 0 and sortedQuestTexts or nil

@@ -1,9 +1,10 @@
 local addonName, addon = ...
+local MBLib = addon.MBLib
+
 local OptionsScreen = {}
 
 local function GetDefaultValueLabel(def)
   if not def then return "" end
-
   if def.Type == "dropdown" and def.Options and #def.Options > 0 then
     for _, opt in ipairs(def.Options) do
       if type(opt) == "table" and opt.value ~= nil and opt.name ~= nil then
@@ -15,7 +16,6 @@ local function GetDefaultValueLabel(def)
       end
     end
   end
-
   return tostring(def.Default)
 end
 
@@ -23,16 +23,12 @@ local function BuildSettingDescription(def)
   local base = def.Description or ""
   local defaultLabel = GetDefaultValueLabel(def)
   local suffix = "(Default: " .. defaultLabel .. ")"
-
-  if base == "" then
-    return suffix
-  end
-
+  if base == "" then return suffix end
   return base .. "\n" .. suffix
 end
 
-local function CreateCommandList(parent, anchor, startOffsetX, startOffsetY)
-  local triggers = addon.Commands:GetTriggers()
+local function CreateCommandList(parent, anchor, startOffsetX)
+  local triggers = MBLib.Commands:GetTriggers()
   local usageText = "Usage: " .. table.concat(triggers, " [command] or ") .. " [command]"
 
   local usageFS = parent:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
@@ -41,22 +37,20 @@ local function CreateCommandList(parent, anchor, startOffsetX, startOffsetY)
   usageFS:SetText(usageText)
 
   local lastCmd = usageFS
-  if addon.Commands and addon.Commands.list then
+  if MBLib.Commands and MBLib.Commands.list then
     local keys = {}
-    for k in pairs(addon.Commands.list) do table.insert(keys, k) end
+    for k in pairs(MBLib.Commands.list) do table.insert(keys, k) end
     table.sort(keys)
 
     for i, cmd in ipairs(keys) do
-      local info = addon.Commands.list[cmd]
+      local info = MBLib.Commands.list[cmd]
       local cmdText = parent:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-
       if i == 1 then
         cmdText:SetPoint("TOPLEFT", lastCmd, "BOTTOMLEFT", 0, -15)
       else
         cmdText:SetPoint("TOPLEFT", lastCmd, "TOPLEFT", 0, -18)
       end
-
-      cmdText:SetText(addon.Commands:GetFormattedCommandStr(cmd, info.desc))
+      cmdText:SetText(MBLib.Commands:GetFormattedCommandStr(cmd, info.desc))
       lastCmd = cmdText
     end
   end
@@ -66,25 +60,28 @@ local function CreateMainFrame()
   local mainFrame = CreateFrame("Frame", nil)
   mainFrame:Hide()
 
-  local icon = mainFrame:CreateTexture(nil, "ARTWORK")
-  icon:SetSize(64, 64)
-  icon:SetPoint("TOPLEFT", 15, -15)
-  icon:SetTexture("Interface\\AddOns\\" .. addonName .. "\\Media\\hovername-icon.png")
+  local iconPath = MBLib:GetIcon()
+  if iconPath then
+    local icon = mainFrame:CreateTexture(nil, "ARTWORK")
+    icon:SetSize(64, 64)
+    icon:SetPoint("TOPLEFT", 15, -15)
+    icon:SetTexture(iconPath)
+  end
 
   local title = mainFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalHuge")
-  title:SetPoint("LEFT", icon, "RIGHT", 15, 10)
+  title:SetPoint("LEFT", mainFrame, "TOPLEFT", iconPath and 94 or 20, -32)
   title:SetText(C_AddOns.GetAddOnMetadata(addonName, "Title"))
 
   local description = mainFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
   description:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -4)
   description:SetText(C_AddOns.GetAddOnMetadata(addonName, "Notes"))
 
-  local line1 = addon.Utils:CreateSeparator(mainFrame, mainFrame, 15, -100)
+  local line1 = MBLib.Utils:CreateSeparator(mainFrame, mainFrame, 15, -100)
 
   local creditsData = {
-    "|cffffd200Version:|r " .. C_AddOns.GetAddOnMetadata(addonName, "Version"),
-    "|cffffd200Author:|r " .. C_AddOns.GetAddOnMetadata(addonName, "Author"),
-    "|cffffd200Last Updated:|r " .. C_AddOns.GetAddOnMetadata(addonName, "X-Date"),
+    "|cffffd200Version:|r " .. (C_AddOns.GetAddOnMetadata(addonName, "Version") or ""),
+    "|cffffd200Author:|r " .. (C_AddOns.GetAddOnMetadata(addonName, "Author") or ""),
+    "|cffffd200Last Updated:|r " .. (C_AddOns.GetAddOnMetadata(addonName, "X-Date") or ""),
   }
 
   local topCredits = mainFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
@@ -97,37 +94,48 @@ local function CreateMainFrame()
   contactCTA:SetPoint("TOPLEFT", topCredits, "BOTTOMLEFT", 0, -30)
   contactCTA:SetText("Questions or issues? Reach out on:")
 
-  local posAnchor
-  posAnchor = addon.Utils:CreateCopyableLink(mainFrame, "Github:", C_AddOns.GetAddOnMetadata(addonName, "X-Github"), contactCTA, 0, -10)
-  posAnchor = addon.Utils:CreateCopyableLink(mainFrame, "CurseForge:", C_AddOns.GetAddOnMetadata(addonName, "X-CurseForge"), posAnchor, 0, 0)
-  posAnchor = addon.Utils:CreateCopyableLink(mainFrame, "Wago.io:", C_AddOns.GetAddOnMetadata(addonName, "X-Wago"), posAnchor, 0, 0)
+  local posAnchor = contactCTA
+  local function MaybeLink(label, field, prevAnchor, firstOffsetY)
+    local value = C_AddOns.GetAddOnMetadata(addonName, field)
+    if value and value ~= "" then
+      return MBLib.Utils:CreateCopyableLink(mainFrame, label, value, prevAnchor, 0, prevAnchor == contactCTA and (firstOffsetY or -10) or 0)
+    end
+    return prevAnchor
+  end
+  posAnchor = MaybeLink("Github:", "X-Github", posAnchor, -10)
+  posAnchor = MaybeLink("CurseForge:", "X-CurseForge", posAnchor)
+  posAnchor = MaybeLink("Wago.io:", "X-Wago", posAnchor)
 
-  local subCredits = mainFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-  local prevAuthors = {
-    C_AddOns.GetAddOnMetadata(addonName, "X-PrevAuthor1"),
-    C_AddOns.GetAddOnMetadata(addonName, "X-PrevAuthor2")
-  }
-
-  subCredits:SetPoint("TOPLEFT", posAnchor, "BOTTOMLEFT", 0, -25)
-  if #prevAuthors > 0 then
-    subCredits:SetText("|cffaaaaaaThis is a continuation from the original addon|r |cffffd200ncHoverName|r |cffaaaaaaby|r " .. table.concat(prevAuthors, " |cffaaaaaa&|r "))
+  local predecessor = MBLib:GetPredecessor()
+  if predecessor then
+    local prevAuthors = {}
+    for i = 1, 5 do
+      local name = C_AddOns.GetAddOnMetadata(addonName, "X-PrevAuthor" .. i)
+      if name and name ~= "" then table.insert(prevAuthors, name) end
+    end
+    if #prevAuthors > 0 then
+      local subCredits = mainFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+      subCredits:SetPoint("TOPLEFT", posAnchor, "BOTTOMLEFT", 0, -25)
+      subCredits:SetText("|cffaaaaaaThis is a continuation from the original addon|r |cffffd200"
+        .. predecessor .. "|r |cffaaaaaaby|r "
+        .. table.concat(prevAuthors, " |cffaaaaaa&|r "))
+    end
   end
 
-  local line2 = addon.Utils:CreateSeparator(mainFrame, mainFrame, 15, -360)
+  local line2 = MBLib.Utils:CreateSeparator(mainFrame, mainFrame, 15, -360)
   local cmdTitle = mainFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
   cmdTitle:SetPoint("TOPLEFT", line2, "BOTTOMLEFT", 20, -20)
   cmdTitle:SetText("Available Chat Commands:")
-  CreateCommandList(mainFrame, cmdTitle, 10, -10)
+  CreateCommandList(mainFrame, cmdTitle, 10)
 
   return mainFrame
 end
 
-
 local function CreateSettingsCategory(parent)
   local category, layout = Settings.RegisterVerticalLayoutSubcategory(parent, "Display Settings")
 
-  for _, group in ipairs(addon.Settings.groupOrder) do
-    local defs = addon.Settings.byGroup[group]
+  for _, group in ipairs(MBLib.Settings.groupOrder) do
+    local defs = MBLib.Settings.byGroup[group]
     if defs and #defs > 0 then
       local visible = {}
       for _, def in ipairs(defs) do
@@ -146,13 +154,12 @@ local function CreateSettingsCategory(parent)
             type(def.Default),
             def.Name,
             def.Default,
-            function() return addon.Settings:Get(def.Key) end,
-            function(value) addon.Settings:Set(def.Key, value) end
+            function() return MBLib.Settings:Get(def.Key) end,
+            function(value) MBLib.Settings:Set(def.Key, value) end
           )
 
           if def.Type == "checkbox" then
             Settings.CreateCheckbox(category, setting, settingDescription)
-
           elseif def.Type == "dropdown" then
             local function GetOptions()
               local container = Settings.CreateControlTextContainer()
@@ -166,7 +173,6 @@ local function CreateSettingsCategory(parent)
               return container:GetData()
             end
             Settings.CreateDropdown(category, setting, GetOptions, settingDescription)
-
           elseif def.Type == "slider" then
             local minValue = def.Min or 0
             local maxValue = def.Max or 100
@@ -181,7 +187,6 @@ local function CreateSettingsCategory(parent)
   end
 end
 
-
 local function CreateReleaseNotesCategory(parent)
   local releaseFrame = CreateFrame("Frame", nil)
   releaseFrame:Hide()
@@ -191,47 +196,39 @@ local function CreateReleaseNotesCategory(parent)
   title:SetText(addonName .. " - Release Notes")
 
   local settingKey = "GetNotified"
-  local def = addon.Settings.byKey[settingKey]
-  local cb = CreateFrame("CheckButton", nil, releaseFrame, "InterfaceOptionsCheckButtonTemplate")
-  cb:SetPoint("BOTTOMRIGHT", releaseFrame, "TOPRIGHT", -200, -45)
-  cb.Text:SetText(def.Name)
-  cb:SetChecked(addon.Settings:Get(settingKey))
+  local def = MBLib.Settings.byKey[settingKey]
+  if def then
+    local cb = CreateFrame("CheckButton", nil, releaseFrame, "InterfaceOptionsCheckButtonTemplate")
+    cb:SetPoint("BOTTOMRIGHT", releaseFrame, "TOPRIGHT", -200, -45)
+    cb.Text:SetText(def.Name)
+    cb:SetChecked(MBLib.Settings:Get(settingKey))
 
-  cb:SetScript("OnEnter", function(self)
-    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    GameTooltip:SetText(def.Name, 1, 1, 1)
-    GameTooltip:AddLine(def.Description, nil, nil, nil, true)
-    GameTooltip:Show()
-  end)
+    cb:SetScript("OnEnter", function(self)
+      GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+      GameTooltip:SetText(def.Name, 1, 1, 1)
+      GameTooltip:AddLine(def.Description, nil, nil, nil, true)
+      GameTooltip:Show()
+    end)
+    cb:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    cb:SetScript("OnShow", function(self) self:SetChecked(MBLib.Settings:Get(settingKey)) end)
+    cb:SetScript("OnClick", function(self) MBLib.Settings:Set(settingKey, self:GetChecked()) end)
+  end
 
-  cb:SetScript("OnLeave", function()
-    GameTooltip:Hide()
-  end)
-
-  cb:SetScript("OnShow", function(self)
-    self:SetChecked(addon.Settings:Get(settingKey))
-  end)
-
-  cb:SetScript("OnClick", function(self)
-    local isChecked = self:GetChecked()
-    addon.Settings:Set(settingKey, isChecked)
-  end)
-
-  local line = addon.Utils:CreateSeparator(releaseFrame, releaseFrame, 15, -50)
+  local line = MBLib.Utils:CreateSeparator(releaseFrame, releaseFrame, 15, -50)
 
   local scrollFrame = CreateFrame("ScrollFrame", nil, releaseFrame, "UIPanelScrollFrameTemplate")
   scrollFrame:SetPoint("TOPLEFT", line, "BOTTOMLEFT", 0, -10)
   scrollFrame:SetPoint("BOTTOMRIGHT", releaseFrame, "BOTTOMRIGHT", -30, 20)
 
   local content = CreateFrame("Frame", nil, scrollFrame)
-  content:SetSize(650, 500)
-  content:SetSize(650, 1) -- Height will be updated by Changelog:Build
+  content:SetSize(650, 1)
   scrollFrame:SetScrollChild(content)
-  addon.Changelog:Build(content) -- Tell Changelog to draw itself into the content frame
+  if MBLib.Changelog and MBLib.Changelog.Build then
+    MBLib.Changelog:Build(content)
+  end
 
   Settings.RegisterCanvasLayoutSubcategory(parent, releaseFrame, "Release Notes")
 end
-
 
 function OptionsScreen:Build()
   if not Settings then return end
@@ -243,11 +240,8 @@ function OptionsScreen:Build()
 
   Settings.RegisterAddOnCategory(mainCategory)
 
-  addon.OptionsScreen = OptionsScreen
-  addon.OptionsScreenID = mainCategory:GetID()
+  MBLib._optionsScreenID = mainCategory:GetID()
   return mainCategory
 end
 
--- Auto-build on load so the Settings panel is available immediately
-pcall(function() OptionsScreen:Build() end)
-return OptionsScreen
+MBLib.OptionsScreen = OptionsScreen

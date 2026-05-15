@@ -1,12 +1,12 @@
 # <img src="https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/refs/heads/main/media/hovername-icon.png" width="50" height="50"> HoverName
 
-### Version 12.0.5.1 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-12.0.5-blue)
+### Version 12.0.5.2 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-12.0.5-blue)
 
 👉 View the [changelog here](https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG.md)
 
 ---
 
-### Version 5.5.2.0 - available for World of Warcraft - Mists of Pandaria Classic ![Version](https://img.shields.io/badge/version-5.5.2-blue)
+### Version 5.5.2.1 - available for World of Warcraft - Mists of Pandaria Classic ![Version](https://img.shields.io/badge/version-5.5.2-blue)
 
 👉 View the [changelog here](https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG_Mists.md)
 
@@ -47,3 +47,4 @@ The target's classification (world boss, elite, rare, rare elite)
 The quest objectives related to the target (quest, daily, world quest)
 - When there are multiple objectives related to the target, all of the will be shown. The objective(s) completed will stay present, until all objectives are completed. (The target will then be flagged by the API as no more relevant to active quest objectives). The list of objectives is sorted: In Progress > Done.
 - Targets that are related to "Progress quests" (Those with %) will show the current % done and in addition (when known in the [LibObjectiveProgress-1.0 library](https://www.curseforge.com/wow/addons/libobjectiveprogress-1-0)) it will show how much that target will add to the %-counter when killed/looted/clicked.
+

@@ -1,5 +1,5 @@
 ## Interface: 50502, 50503
-## Version: 5.5.2.0
+## Version: 5.5.2.1
 
 ## X-Flavor: classic
 ## X-Expansion: MOP
@@ -14,10 +14,8 @@
 
 Libraries\Load_Libraries_Mists.xml
 Init.lua
-Modules\Utils.lua
-Modules\Fonts.lua
+Modules\Settings.lua
+Modules\Changelog.lua
 Modules\UnitInfo.lua
 Modules\QuestInfo.lua
-Modules\Settings.lua
-Modules\Commands.lua
 Modules\HoverName.lua

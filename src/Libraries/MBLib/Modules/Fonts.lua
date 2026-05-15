@@ -1,7 +1,10 @@
 local addonName, addon = ...
+local MBLib = addon.MBLib
+
 local Fonts = {}
 
--- Return available fonts as a list of names and store LSM/font map on the module.
+-- Return available fonts as a list of names; second return is name -> path map.
+-- Uses LibSharedMedia-3.0 via LibStub when available.
 function Fonts:GetAvailableFonts()
   if self._fontList then return self._fontList, self._fontMap end
 
@@ -26,13 +29,10 @@ function Fonts:GetAvailableFonts()
     end
   end
 
-  -- Ensure the fontMap has fallback entries for built-ins
   for _, name in ipairs(fonts) do
-    if not fontMap[name] then
-      if LSM then
-        local ok, p = pcall(LSM.Fetch, LSM, "font", name)
-        if ok and p then fontMap[name] = p end
-      end
+    if not fontMap[name] and LSM then
+      local ok, p = pcall(LSM.Fetch, LSM, "font", name)
+      if ok and p then fontMap[name] = p end
     end
   end
 
@@ -41,5 +41,4 @@ function Fonts:GetAvailableFonts()
   return fonts, fontMap
 end
 
-addon.Fonts = Fonts
-return Fonts
+MBLib.Fonts = Fonts

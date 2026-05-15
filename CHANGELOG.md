@@ -1,6 +1,11 @@
 ﻿# Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `12.0.5.2` (2026-05-15)
+**Improvements**
+- Moved a lot of shared internal code into a new library (MBLib). No changes to the visible features - just makes future updates easier to ship and having shared code with other addons I develop.
+
+---
 ### `12.0.5.1` (2026-04-27)
 **New**
 - Added option to configure desired font outline for the displayed text.

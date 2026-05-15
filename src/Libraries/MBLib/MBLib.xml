@@ -1,0 +1,16 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+    https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI.xsd">
+    <!-- Embed entrypoint. Reference this from a consumer addon's .toc:
+            Libraries\MBLib\MBLib.xml
+         (LibStub guards against double-load if multiple addons embed it.) -->
+    <Include file="Libraries\Load_Libraries.xml"/>
+    <Script file="Init.lua"/>
+    <Script file="Modules\Utils.lua"/>
+    <Script file="Modules\Fonts.lua"/>
+    <Script file="Modules\Settings.lua"/>
+    <Script file="Modules\Commands.lua"/>
+    <Script file="Modules\Changelog.lua"/>
+    <Script file="Modules\Notifications.lua"/>
+    <Script file="Modules\OptionsScreen.lua"/>
+</Ui>

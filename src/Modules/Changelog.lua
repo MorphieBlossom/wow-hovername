@@ -1,7 +1,16 @@
 local _, addon = ...
 
-local Changelog = {}
-Changelog.list = {
+addon.MBLib.Changelog:Set({
+  {
+    version = "12.0.5.2",
+    date = "2026-05-15",
+    notify = false,
+    categories = {
+      ["Improvements"] = {
+        "Moved a lot of shared internal code into a new library (MBLib). No changes to the visible features - just makes future updates easier to ship and having shared code with other addons I develop.",
+      },
+    }
+  },
   {
     version = "12.0.5.1",
     date = "2026-04-27",
@@ -269,51 +278,4 @@ Changelog.list = {
       }
     }
   },
-}
-
-function Changelog:Build(contentFrame)
-  local totalHeight = 10
-  local width = contentFrame:GetWidth() - 40
-  local leftPadding = 15 -- Constant left alignment for everything
-
-  for i, entry in ipairs(self.list or {}) do
-    -- 1. Version Header (Gold/Normal)
-    local v = contentFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    v:SetWidth(width)
-    v:SetJustifyH("LEFT")
-    v:SetText("|cffffd200" .. entry.version .. "|r (" .. entry.date .. ")")
-    v:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", leftPadding, -totalHeight)
-    totalHeight = totalHeight + v:GetStringHeight() + 8
-
-    -- 2. Categories and Changes
-    for catName, changes in pairs(entry.categories) do
-      -- Category (Green/Small)
-      local cat = contentFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-      cat:SetWidth(width)
-      cat:SetJustifyH("LEFT")
-      cat:SetText("|cffffffff" .. catName .. ":|r")
-      cat:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", leftPadding + 5, -totalHeight)
-      totalHeight = totalHeight + cat:GetStringHeight() + 5
-
-      for _, text in ipairs(changes) do
-        -- Individual Change (Grey/Small)
-        local chg = contentFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-        chg:SetWidth(width - 20)
-        chg:SetJustifyH("LEFT")
-        chg:SetText("|cffcccccc- " .. text .. "|r")
-        chg:SetPoint("TOPLEFT", contentFrame, "TOPLEFT", leftPadding + 10, -totalHeight)
-
-        totalHeight = totalHeight + chg:GetStringHeight() + 4
-      end
-
-      totalHeight = totalHeight + 10
-    end
-
-    totalHeight = totalHeight + 20
-  end
-
-  contentFrame:SetHeight(totalHeight + 20)
-end
-
--- Expose module
-addon.Changelog = Changelog
+})

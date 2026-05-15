@@ -27,28 +27,28 @@ local BACKGROUND_COLORS = {
 }
 
 local function GetBackgroundPadding()
-	if addon and addon.Settings and addon.Settings.Get then
-		local value = tonumber(addon.Settings:Get("Display_BackgroundPadding"))
+	if addon and addon.MBLib.Settings and addon.MBLib.Settings.Get then
+		local value = tonumber(addon.MBLib.Settings:Get("Display_BackgroundPadding"))
 		if value then return math.max(0, value) end
 	end
 	return 0
 end
 
 local function UpdateFrameFonts(f)
-	if not (addon and addon.Settings and addon.Settings.Get) then return end
+	if not (addon and addon.MBLib.Settings and addon.MBLib.Settings.Get) then return end
 
-	local fontName = addon.Settings:Get("Display_FontType")
-	local fontSize = tonumber(addon.Settings:Get("Display_FontSize"))
-	local fontOutline = addon.Settings:Get("Display_FontOutline") or "OUTLINE"
+	local fontName = addon.MBLib.Settings:Get("Display_FontType")
+	local fontSize = tonumber(addon.MBLib.Settings:Get("Display_FontSize"))
+	local fontOutline = addon.MBLib.Settings:Get("Display_FontOutline") or "OUTLINE"
 	if fontOutline == "NONE" then fontOutline = "" end
 	if not (fontName and fontSize) then return end
 
 	local fontPath
-	if addon.Fonts then
-		local map = addon.Fonts._fontMap
+	if addon.MBLib.Fonts then
+		local map = addon.MBLib.Fonts._fontMap
 		if map and map[fontName] then fontPath = map[fontName] end
-		if not fontPath and addon.Fonts.LSM and addon.Fonts.LSM.Fetch then
-			local ok, path = pcall(function() return addon.Fonts.LSM:Fetch("font", fontName) end)
+		if not fontPath and addon.MBLib.Fonts.LSM and addon.MBLib.Fonts.LSM.Fetch then
+			local ok, path = pcall(function() return addon.MBLib.Fonts.LSM:Fetch("font", fontName) end)
 			if ok and path then fontPath = path end
 		end
 	end
@@ -74,14 +74,14 @@ local function SetAnchor(element, anchor, position, top)
 end
 
 local function UpdateBackground(f)
-	local enabled = addon.Settings and addon.Settings.Get and addon.Settings:Get("Display_BackgroundEnabled")
+	local enabled = addon.MBLib.Settings and addon.MBLib.Settings.Get and addon.MBLib.Settings:Get("Display_BackgroundEnabled")
 	if not enabled then
 		f:SetBackdropColor(0, 0, 0, 0)
 		return
 	end
 
-	local colorKey = addon.Settings and addon.Settings.Get and addon.Settings:Get("Display_BackgroundColor") or "BLACK"
-	local alpha = addon.Settings and addon.Settings.Get and addon.Settings:Get("Display_BackgroundAlpha") or 70
+	local colorKey = addon.MBLib.Settings and addon.MBLib.Settings.Get and addon.MBLib.Settings:Get("Display_BackgroundColor") or "BLACK"
+	local alpha = addon.MBLib.Settings and addon.MBLib.Settings.Get and addon.MBLib.Settings:Get("Display_BackgroundAlpha") or 70
 
 	alpha = tonumber(alpha) or 70
 	if alpha > 1 then
@@ -101,13 +101,13 @@ local function UpdateFrameContents(f)
 		pcall(function() UpdateFrameFonts(f) end)
 	end
 
-	local frameName = addon.Utils:GetTopMouseFocusName()
-	if addon.Utils:IsNotEmpty(frameName) and frameName ~= "WorldFrame" then return end
+	local frameName = addon.MBLib.Utils:GetTopMouseFocusName()
+	if addon.MBLib.Utils:IsNotEmpty(frameName) and frameName ~= "WorldFrame" then return end
 
 	local unitName = UnitName("mouseover")
 	if unitName == nil then return end
 
-	local unitText = addon.Utils:GetTextWithColor(unitName, addon.UnitInfo:GetUnitNameColor("mouseover"))
+	local unitText = addon.MBLib.Utils:GetTextWithColor(unitName, addon.UnitInfo:GetUnitNameColor("mouseover"))
 	local level = addon.UnitInfo:GetLevelText()
 	local targetName = addon.UnitInfo:GetTargetText()
 	local status = addon.UnitInfo:GetStatusText()
@@ -116,11 +116,11 @@ local function UpdateFrameContents(f)
 	local faction = addon.UnitInfo:GetFactionText()
 	local race = addon.UnitInfo:GetRaceText()
 	local creatureType = addon.UnitInfo:GetCreatureType()
-	local tooltips = addon.Utils:GetTooltipData()
+	local tooltips = addon.MBLib.Utils:GetTooltipData()
 
-	local mainText = addon.Utils:CombineText(level, unitText, targetName)
+	local mainText = addon.MBLib.Utils:CombineText(level, unitText, targetName)
 	local statusText = status
-	local headerText = addon.Utils:CombineText(faction, classification, creatureType, race)
+	local headerText = addon.MBLib.Utils:CombineText(faction, classification, creatureType, race)
 	local guildText = guild
 
 	f.mainText:SetText(mainText)
@@ -128,9 +128,9 @@ local function UpdateFrameContents(f)
 	f.headerText:SetText(headerText)
 	f.guildText:SetText(guildText)
 
-	addon.Utils:DebugLog(string.format("Unit: %s (%s)", mainText or "", headerText or ""))
+	addon.MBLib.Utils:DebugLog(string.format("Unit: %s (%s)", mainText or "", headerText or ""))
 
-	local subTexts = addon.Utils:CombineTables(addon.QuestInfo:GetQuestText("mouseover", tooltips))
+	local subTexts = addon.MBLib.Utils:CombineTables(addon.QuestInfo:GetQuestText("mouseover", tooltips))
 	local subCount = (subTexts and #subTexts) or 0
 	if subCount > 0 then
 		f.subText:SetText(table.concat(subTexts, "\n"))
@@ -152,15 +152,15 @@ local function UpdateFrameContents(f)
 	local headerW, headerH = Measure(f.headerText)
 	local statusW, statusH = Measure(f.statusText)
 	local subW, subH = Measure(f.subText)
-	local fontSize = tonumber(addon.Settings and addon.Settings.Get and addon.Settings:Get("Display_FontSize")) or Layout.MAIN_MIN_HEIGHT
+	local fontSize = tonumber(addon.MBLib.Settings and addon.MBLib.Settings.Get and addon.MBLib.Settings:Get("Display_FontSize")) or Layout.MAIN_MIN_HEIGHT
 
 	mainW = math.max(mainW, 1)
 	mainH = math.max(mainH, fontSize)
 
 	local topLines = 0
-	if addon.Utils:IsNotEmpty(guildText) then topLines = topLines + 1 end
-	if addon.Utils:IsNotEmpty(headerText) then topLines = topLines + 1 end
-	if addon.Utils:IsNotEmpty(statusText) then topLines = topLines + 1 end
+	if addon.MBLib.Utils:IsNotEmpty(guildText) then topLines = topLines + 1 end
+	if addon.MBLib.Utils:IsNotEmpty(headerText) then topLines = topLines + 1 end
+	if addon.MBLib.Utils:IsNotEmpty(statusText) then topLines = topLines + 1 end
 
 	local padding = GetBackgroundPadding()
 	local topExtra = (topLines * Layout.LINE_STEP) + padding
@@ -180,9 +180,9 @@ local function UpdateFrameContents(f)
 	f.mainText:SetPoint("TOP", f, "TOP", 0, -topExtra)
 
 	local top = 0
-	if addon.Utils:IsNotEmpty(guildText) then top = SetAnchor(f.guildText, f.mainText, "TOPLEFT", top) end
-	if addon.Utils:IsNotEmpty(headerText) then top = SetAnchor(f.headerText, f.mainText, "TOPLEFT", top) end
-	if addon.Utils:IsNotEmpty(statusText) then top = SetAnchor(f.statusText, f.mainText, "TOPLEFT", top) end
+	if addon.MBLib.Utils:IsNotEmpty(guildText) then top = SetAnchor(f.guildText, f.mainText, "TOPLEFT", top) end
+	if addon.MBLib.Utils:IsNotEmpty(headerText) then top = SetAnchor(f.headerText, f.mainText, "TOPLEFT", top) end
+	if addon.MBLib.Utils:IsNotEmpty(statusText) then top = SetAnchor(f.statusText, f.mainText, "TOPLEFT", top) end
 	f.subText:SetPoint("BOTTOMLEFT", f.mainText, "BOTTOMLEFT", Layout.SUB_LEFT_INSET, -Layout.SUB_BOTTOM_OFFSET + (-Layout.SUB_LINE_STEP * subCount))
 
 	UpdateBackground(f)
@@ -197,8 +197,8 @@ local function UpdateFramePosition(f)
 
 	local x, y = GetCursorPosition()
 	local scale = UIParent:GetEffectiveScale()
-	local anchor = addon.Settings and addon.Settings.Get and addon.Settings:Get("Display_CursorAnchor") or "TOP"
-	local distance = addon.Settings and addon.Settings.Get and tonumber(addon.Settings:Get("Display_CursorDistance")) or Layout.CURSOR_DISTANCE_DEFAULT
+	local anchor = addon.MBLib.Settings and addon.MBLib.Settings.Get and addon.MBLib.Settings:Get("Display_CursorAnchor") or "TOP"
+	local distance = addon.MBLib.Settings and addon.MBLib.Settings.Get and tonumber(addon.MBLib.Settings:Get("Display_CursorDistance")) or Layout.CURSOR_DISTANCE_DEFAULT
 	local point, xOffset, yOffset = "BOTTOM", 0, distance
 
 	if anchor == "BOTTOM" then

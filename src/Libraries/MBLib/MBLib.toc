@@ -1,0 +1,15 @@
+## Interface: 120001, 120005
+## Version: 1.0.0
+## X-Date: 2026-05-15
+
+## Title: MBLib
+## Author: MorphieBlossom (Morphenia AD-EU)
+## Notes: Shared library for MorphieBlossom addons. Embed via Libraries\MBLib\MBLib.xml; this TOC is metadata only (read by build.ps1 for versioning).
+## Category: Library
+## LoadOnDemand: 0
+## DefaultState: enabled
+
+## X-Flavor: retail
+## X-Github: https://github.com/MorphieBlossom/wow-mblib
+
+MBLib.xml

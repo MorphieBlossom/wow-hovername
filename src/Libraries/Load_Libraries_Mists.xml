@@ -3,7 +3,8 @@
 ..\FrameXML\UI.xsd">
   <Script file="LibStub\LibStub.lua"/>
   <!-- Disabled as using not available API
-    <Script file="LibObjectiveProgress-1.0\LibObjectiveProgress-1.0.lua"/> 
+    <Script file="LibObjectiveProgress-1.0\LibObjectiveProgress-1.0.lua"/>
     <Script file="LibObjectiveProgress-1.0\ProgressWeightData.lua"/>
   -->
+  <Include file="MBLib\MBLib.xml"/>
 </Ui>

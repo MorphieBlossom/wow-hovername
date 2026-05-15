@@ -1,6 +1,6 @@
-## Interface: 120001, 120005
-## Version: 12.0.5.0
-## X-Date: 2026-04-24
+## Interface: 120005, 120007
+## Version: 12.0.5.2
+## X-Date: 2026-05-15
 
 ## Title: HoverName
 ## Author: MorphieBlossom (Morphenia AD-EU)
@@ -20,15 +20,10 @@
 ## X-PrevAuthor1: Nightcracker
 ## X-PrevAuthor2: Narfi (DieAldor-EU)
 
-Init.lua
 Libraries\Load_Libraries.xml
-Modules\Utils.lua
-Modules\Fonts.lua
+Init.lua
 Modules\Settings.lua
 Modules\Changelog.lua
 Modules\UnitInfo.lua
 Modules\QuestInfo.lua
-Modules\Commands.lua
-Modules\Notifications.lua
-Modules\OptionsScreen.lua
 Modules\HoverName.lua
