@@ -1,6 +1,18 @@
 ﻿# Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `12.0.5.3` (2026-06-07)
+**New**
+- Added diagonal Cursor Anchor choices: Top Left, Top Right, Bottom Left and Bottom Right.
+- Replaced the Cursor Distance slider with separate Horizontal Offset and Vertical Offset sliders (both -200 to 200) for full positional control relative to the cursor.
+
+**Fixes**
+- A few race conditions during load of modules solved.
+
+**Improvements**
+- Refreshed bundled MBLib helper library to v1.0.6.
+
+---
 ### `12.0.5.2` (2026-05-15)
 **Improvements**
 - Moved a lot of shared internal code into a new library (MBLib). No changes to the visible features - just makes future updates easier to ship and having shared code with other addons I develop.

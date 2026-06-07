@@ -2,6 +2,23 @@ local _, addon = ...
 
 addon.MBLib.Changelog:Set({
   {
+    version = "12.0.5.3",
+    date = "2026-06-07",
+    notify = false,
+    categories = {
+      ["New"] = {
+        "Added diagonal Cursor Anchor choices: Top Left, Top Right, Bottom Left and Bottom Right.",
+        "Replaced the Cursor Distance slider with separate Horizontal Offset and Vertical Offset sliders (both -200 to 200) for full positional control relative to the cursor.",
+      },
+      ["Fixes"] = {
+        "A few race conditions during load of modules solved.",
+      },
+      ["Improvements"] = {
+        "Refreshed bundled MBLib helper library to v1.0.6.",
+      },
+    }
+  },
+  {
     version = "12.0.5.2",
     date = "2026-05-15",
     notify = false,

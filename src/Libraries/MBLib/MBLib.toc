@@ -1,6 +1,6 @@
 ## Interface: 120001, 120005
-## Version: 1.0.0
-## X-Date: 2026-05-15
+## Version: 1.0.5
+## X-Date: 2026-06-07
 
 ## Title: MBLib
 ## Author: MorphieBlossom (Morphenia AD-EU)

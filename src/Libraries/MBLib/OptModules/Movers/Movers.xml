@@ -1,0 +1,25 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+    https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI.xsd">
+    <!--
+      Opt-in mover support. Reference this from a consumer addon's
+      loader XML alongside MBLib.xml when (and only when) the addon
+      has frames the user should be able to reposition:
+
+          <Include file="MBLib\MBLib.xml"/>
+          <Include file="MBLib\OptModules\Movers\Movers.xml"/>
+
+      Provides:
+        - MBLib.MoverController  the floating Save/Revert/[X] panel
+        - MBLib.Mover            single-frame drag-to-position helper
+        - MBLib.Movers           registry of movable frames + bulk edit
+        - MBLib.MoversPanel      Settings -> Movers subcategory
+
+      Load order: MoverController first (Mover + Movers both delegate
+      to it); MoversPanel last (it consumes the Movers registry).
+    -->
+    <Script file="MoverController.lua"/>
+    <Script file="Mover.lua"/>
+    <Script file="Movers.lua"/>
+    <Script file="MoversPanel.lua"/>
+</Ui>

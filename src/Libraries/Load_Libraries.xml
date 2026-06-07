@@ -5,4 +5,5 @@
   <Script file="LibObjectiveProgress-1.0\LibObjectiveProgress-1.0.lua"/>
   <Script file="LibObjectiveProgress-1.0\ProgressWeightData.lua"/>
   <Include file="MBLib\MBLib.xml"/>
+  <Include file="MBLib\OptModules\Fonts\Fonts.xml"/>
 </Ui>

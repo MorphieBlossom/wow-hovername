@@ -1,0 +1,24 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+    https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/FrameXML/UI.xsd">
+    <!--
+      Opt-in font support. Reference this from a consumer addon's
+      loader XML alongside MBLib.xml when the addon surfaces a
+      Display_FontType setting (font dropdown backed by
+      LibSharedMedia-3.0):
+
+          <Include file="MBLib\MBLib.xml"/>
+          <Include file="MBLib\OptModules\Fonts\Fonts.xml"/>
+
+      Provides:
+        - MBLib.Fonts                LSM integration + bundled Expressway font
+        - Auto-population of "Display_FontType" dropdown options in
+          MBLib.OptionsScreen (dynamic — re-fetched on each dropdown open
+          so fonts registered after addon load surface without /reload).
+
+      Bundles Expressway.ttf in MBLib's Media\Fonts\ folder; that file
+      ships regardless of whether this opt-in loader is referenced, but
+      no LSM registration happens unless this XML is included.
+    -->
+    <Script file="Fonts.lua"/>
+</Ui>

@@ -33,7 +33,7 @@ local addonName, addon = ...
 addon.MBLib = addon.MBLib or {}
 local MBLib = addon.MBLib
 
-MBLib._version = "1.0.0"
+MBLib._version = "1.0.4"
 MBLib._addonName = addonName
 MBLib._addon = addon
 MBLib._slashTriggers = {}
@@ -42,21 +42,23 @@ MBLib._predecessor = nil
 MBLib._initialized = false
 MBLib._db = nil
 MBLib._optionsScreenID = nil
+MBLib._debugEnabled = false
 
--- Shared color/icon constants
-MBLib.COLOR_ALLIANCE = { r = 0 / 255, g = 112 / 255, b = 221 / 255 }
-MBLib.COLOR_COMPLETE = { r = 136 / 255, g = 136 / 255, b = 136 / 255 }
-MBLib.COLOR_DEAD = { r = 136 / 255, g = 136 / 255, b = 136 / 255 }
-MBLib.COLOR_DEFAULT = { r = 1, g = 1, b = 1 }
-MBLib.COLOR_ELITE = { r = 213 / 255, g = 154 / 255, b = 18 / 255 }
-MBLib.COLOR_GUILD = { r = 24 / 255, g = 222 / 255, b = 0 }
-MBLib.COLOR_HORDE = { r = 1, g = 0, b = 0 }
-MBLib.COLOR_HOSTILE = { r = 1, g = 68 / 255, b = 68 / 255 }
-MBLib.COLOR_HOSTILE_UNATTACKABLE = { r = 210 / 255, g = 76 / 255, b = 56 / 255 }
-MBLib.COLOR_NEUTRAL = { r = 1, g = 1, b = 68 / 255 }
-MBLib.COLOR_RARE = { r = 226 / 255, g = 228 / 255, b = 226 / 255 }
-MBLib.ICON_CHECKMARK = "|TInterface\\RaidFrame\\ReadyCheck-Ready:11|t"
-MBLib.ICON_LIST = "- "
+-- Generic "debug mode is on" toggle. Opt-modules (the icon-picker dump
+-- pipeline, for instance) check this to gate their developer-facing
+-- behavior. Consumer addons that ship their own debug page mirror their
+-- toggle into here via MBLib:SetDebugEnabled so MBLib's internals can
+-- self-gate without each opt-module having to register a callback.
+function MBLib:IsDebugEnabled()
+  return self._debugEnabled == true
+end
+
+function MBLib:SetDebugEnabled(on)
+  self._debugEnabled = on and true or false
+end
+
+-- Shared constants (colors, icons, addon list) live in CoreModules/Constants.lua,
+-- loaded immediately after this file by MBLib.xml.
 
 -- Add an extra slash trigger to the addon. The default trigger `/<addonname>` is
 -- always registered; this adds additional ones.
@@ -91,6 +93,21 @@ function MBLib:GetPredecessor()
   return self._predecessor
 end
 
+-- Optional. Overrides the label of the settings subcategory built by
+-- OptionsScreen (the page that hosts all consumer-registered settings).
+-- Defaults to "Display Settings" when not set.
+function MBLib:SetSettingsSubcategoryName(name)
+  if type(name) ~= "string" or name == "" then return end
+  self._settingsSubcategoryName = name
+end
+
+function MBLib:GetSettingsSubcategoryName()
+  -- Hard fallback "Display Settings" stays here in addition to L because
+  -- GetSettingsSubcategoryName may be reached before Strings.lua loads in
+  -- pathological consumer code paths.
+  return self._settingsSubcategoryName or (self.L and self.L.SETTINGS_SUBCATEGORY_DEFAULT) or "Display Settings"
+end
+
 -- Bootstrap: open SavedVariables, init Settings, register slash handlers, build the
 -- options screen, schedule the update popup check.
 -- Call once from the consumer's ADDON_LOADED handler after registering data.
@@ -104,6 +121,9 @@ function MBLib:Init()
 
   if self.Settings and self.Settings.Init then
     self.Settings:Init()
+  end
+  if self.Fonts and self.Fonts.RegisterEmbeddedFonts then
+    pcall(self.Fonts.RegisterEmbeddedFonts, self.Fonts)
   end
   if self.Commands and self.Commands.RegisterSlashHandlers then
     self.Commands:RegisterSlashHandlers()

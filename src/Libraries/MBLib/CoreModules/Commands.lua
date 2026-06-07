@@ -22,7 +22,9 @@ Commands.list = {
     func = function()
       PrintCommand("help", string.format("- Available commands (%s)", defaultTrigger))
       for cmd, info in pairs(Commands.list) do
-        print(Commands:GetFormattedCommandStr(cmd, info.desc))
+        if not info.hidden then
+          print(Commands:GetFormattedCommandStr(cmd, info.desc))
+        end
       end
       return true
     end,
@@ -30,6 +32,7 @@ Commands.list = {
   debug = {
     desc = "Toggle debug logging on/off",
     usage = "on / off",
+    hidden = true,
     func = function(arg)
       if arg == "on" then
         MBLib.Settings:ToggleDebug(true)

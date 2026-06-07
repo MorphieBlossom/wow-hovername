@@ -11,7 +11,21 @@ local Layout = {
 	SUB_LEFT_INSET = 12, -- Horizontal inset of subText relative to mainText.
 	FRAME_MIN_WIDTH = 1, -- Keep >0 to avoid invalid size, but do not add visual padding.
 	FRAME_MIN_HEIGHT = 1, -- Keep >0 to avoid invalid size, but do not add visual padding.
-	CURSOR_DISTANCE_DEFAULT = 4, -- Fallback distance from cursor when setting is unavailable.
+	CURSOR_OFFSET_VERTICAL_DEFAULT = 4, -- Fallback vertical offset from cursor when setting is unavailable.
+	CURSOR_OFFSET_HORIZONTAL_DEFAULT = 0, -- Fallback horizontal offset from cursor when setting is unavailable.
+}
+
+-- Map a Cursor Anchor selection to the frame point that should sit at the cursor.
+-- The horizontal/vertical offsets are then added on top as raw deltas.
+local ANCHOR_TO_POINT = {
+	TOP         = "BOTTOM",
+	BOTTOM      = "TOP",
+	LEFT        = "RIGHT",
+	RIGHT       = "LEFT",
+	TOPLEFT     = "BOTTOMRIGHT",
+	TOPRIGHT    = "BOTTOMLEFT",
+	BOTTOMLEFT  = "TOPRIGHT",
+	BOTTOMRIGHT = "TOPLEFT",
 }
 
 local BACKGROUND_COLORS = {
@@ -45,11 +59,27 @@ local function UpdateFrameFonts(f)
 
 	local fontPath
 	if addon.MBLib.Fonts then
+		-- Ensure MBLib has scanned LSM at least once. GetAvailableFonts is
+		-- rebuild-on-every-call (MBLib 1.0.5+), so this also picks up fonts
+		-- registered by other addons after MBLib's initial load.
+		if addon.MBLib.Fonts.GetAvailableFonts then
+			pcall(function() addon.MBLib.Fonts:GetAvailableFonts() end)
+		end
 		local map = addon.MBLib.Fonts._fontMap
 		if map and map[fontName] then fontPath = map[fontName] end
 		if not fontPath and addon.MBLib.Fonts.LSM and addon.MBLib.Fonts.LSM.Fetch then
 			local ok, path = pcall(function() return addon.MBLib.Fonts.LSM:Fetch("font", fontName) end)
 			if ok and path then fontPath = path end
+		end
+	end
+
+	-- Direct LSM fallback in case MBLib.Fonts hasn't loaded yet, or the consumer
+	-- selected a font that LSM only knows about after a late registration.
+	if not fontPath and LibStub then
+		local ok, LSM = pcall(function() return LibStub("LibSharedMedia-3.0", true) end)
+		if ok and LSM and LSM.Fetch then
+			local fetchOk, path = pcall(function() return LSM:Fetch("font", fontName) end)
+			if fetchOk and path then fontPath = path end
 		end
 	end
 
@@ -197,23 +227,11 @@ local function UpdateFramePosition(f)
 
 	local x, y = GetCursorPosition()
 	local scale = UIParent:GetEffectiveScale()
-	local anchor = addon.MBLib.Settings and addon.MBLib.Settings.Get and addon.MBLib.Settings:Get("Display_CursorAnchor") or "TOP"
-	local distance = addon.MBLib.Settings and addon.MBLib.Settings.Get and tonumber(addon.MBLib.Settings:Get("Display_CursorDistance")) or Layout.CURSOR_DISTANCE_DEFAULT
-	local point, xOffset, yOffset = "BOTTOM", 0, distance
+	local anchor = (addon.MBLib.Settings and addon.MBLib.Settings.Get and addon.MBLib.Settings:Get("Display_CursorAnchor")) or "TOP"
+	local point = ANCHOR_TO_POINT[anchor] or ANCHOR_TO_POINT.TOP
 
-	if anchor == "BOTTOM" then
-		point = "TOP"
-		xOffset = 0
-		yOffset = -distance
-	elseif anchor == "LEFT" then
-		point = "RIGHT"
-		xOffset = -distance
-		yOffset = 0
-	elseif anchor == "RIGHT" then
-		point = "LEFT"
-		xOffset = distance
-		yOffset = 0
-	end
+	local xOffset = (addon.MBLib.Settings and addon.MBLib.Settings.Get and tonumber(addon.MBLib.Settings:Get("Display_CursorOffsetHorizontal"))) or Layout.CURSOR_OFFSET_HORIZONTAL_DEFAULT
+	local yOffset = (addon.MBLib.Settings and addon.MBLib.Settings.Get and tonumber(addon.MBLib.Settings:Get("Display_CursorOffsetVertical"))) or Layout.CURSOR_OFFSET_VERTICAL_DEFAULT
 
 	f:ClearAllPoints()
 	f:SetPoint(point, UIParent, "BOTTOMLEFT", (x / scale) + xOffset, (y / scale) + yOffset)
