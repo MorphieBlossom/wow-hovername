@@ -119,6 +119,13 @@ function MBLib:Init()
   _G[dbName] = _G[dbName] or {}
   self._db = _G[dbName]
 
+  -- Profiles:Init runs BEFORE Settings:Init so consumers that gate
+  -- settings on profile state (e.g. per-profile feature toggles) see
+  -- the active profile table ready when Settings registers definitions.
+  if self.Profiles and self.Profiles.Init then
+    self.Profiles:Init()
+  end
+
   if self.Settings and self.Settings.Init then
     self.Settings:Init()
   end

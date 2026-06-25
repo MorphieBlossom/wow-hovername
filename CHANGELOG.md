@@ -1,6 +1,11 @@
 ﻿# Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `12.0.7.0` (2026-06-25)
+**Version update**
+- Updated to game version 12.0.7
+
+---
 ### `12.0.5.3` (2026-06-07)
 **New**
 - Added diagonal Cursor Anchor choices: Top Left, Top Right, Bottom Left and Bottom Right.

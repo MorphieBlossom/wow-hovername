@@ -17,11 +17,14 @@
     <Script file="CoreModules\Strings.lua"/>
     <Script file="CoreModules\Constants.lua"/>
     <Script file="CoreModules\Utils.lua"/>
+    <Script file="CoreModules\Profiles.lua"/>
+    <Script file="CoreModules\Dialogs.lua"/>
     <Script file="CoreModules\Settings.lua"/>
     <Script file="CoreModules\Commands.lua"/>
     <Script file="CoreModules\Changelog.lua"/>
     <Script file="CoreModules\Notifications.lua"/>
     <Script file="CoreModules\CopyPopup.lua"/>
     <Script file="CoreModules\OptionsScreen.lua"/>
+    <Script file="CoreModules\ProfilesPanel.lua"/>
     <!-- <Script file="CoreModules\CustomOptionsScreen.lua"/> -->
 </Ui>

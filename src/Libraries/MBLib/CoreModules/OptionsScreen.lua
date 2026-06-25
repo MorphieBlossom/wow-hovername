@@ -471,19 +471,22 @@ function OptionsScreen:Build()
   MBLib._optionsCategory = mainCategory
   MBLib._optionsScreenID = mainCategory:GetID()
 
-  -- Movers + Release Notes both register on the PLAYER_LOGIN path so
-  -- they land BELOW any consumer-registered sub-pages (Debug,
+  -- Movers, Profiles, and Release Notes all register on the PLAYER_LOGIN
+  -- path so they land BELOW any consumer-registered sub-pages (Debug,
   -- Watchers, etc.) which themselves typically defer to PLAYER_LOGIN.
-  -- Movers runs synchronously in this handler, then Release Notes
-  -- runs one frame later via C_Timer.After — meaning the final list
-  -- order is:
-  --     Settings -> <consumer subcategories> -> Movers -> Release Notes.
-  -- The Settings API has no reorder primitive, so registration order
-  -- is the only lever we have. Skipping MoversPanel registration when
-  -- the opt-module isn't loaded keeps non-Movers consumers clean.
+  -- Movers + Profiles run synchronously in this handler in that order;
+  -- Release Notes runs one frame later via C_Timer.After so it always
+  -- lands at the very bottom. Final list order is:
+  --     Settings -> <consumer subcategories> -> Movers -> Profiles -> Release Notes.
+  -- The Settings API has no reorder primitive, so registration order is
+  -- the only lever we have. Each panel's Build skips cleanly when its
+  -- opt-module isn't loaded / isn't enabled.
   local function registerLateSubcategories()
     if MBLib.MoversPanel and MBLib.MoversPanel.Build then
       pcall(function() MBLib.MoversPanel:Build(mainCategory) end)
+    end
+    if MBLib.ProfilesPanel and MBLib.ProfilesPanel.Build then
+      pcall(function() MBLib.ProfilesPanel:Build(mainCategory) end)
     end
     C_Timer.After(0, function() CreateReleaseNotesCategory(mainCategory) end)
   end
