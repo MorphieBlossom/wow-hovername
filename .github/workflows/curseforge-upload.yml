@@ -7,10 +7,10 @@ name: Upload release to CurseForge
 #
 # HoverName ships multiple flavors (Retail + Mists), each with its own TOC,
 # interface line, and version, all under one CurseForge project. Flavors are
-# versioned and released independently, so the release TAG selects the flavor:
-# only the flavor whose `## Version` matches the tag is uploaded (a 12.x tag
-# uploads Retail; a 5.5.x tag uploads Mists). Its zip is identified by the
-# filename build.ps1 produces (e.g. HoverName-v5.5.4.0-Mists.zip), and tagged
+# versioned and released independently, so the release TAG's major (its first
+# number) selects the flavor: it's matched against the WoW major each TOC's
+# interface targets (5.x -> Mists, 12.x -> Retail). The selected flavor's zip
+# is found by the filename suffix build.ps1 appends (e.g. -Mists) and tagged
 # with the game versions decoded from that flavor's `## Interface:` line.
 on:
   release:
@@ -70,27 +70,38 @@ jobs:
             dashed="${suffix//_/-}"              # "" or "-Mists"
             label="${suffix:-retail}"; label="${label#_}"
 
-            # The release tag selects the flavor: skip any flavor whose TOC
-            # version doesn't equal the tag being released.
-            version="$(grep -m1 -oP '##\s*Version:\s*\K.*' "$toc" | tr -d '[:space:]' || true)"
-            if [ "$version" != "$TAG" ]; then
-              echo "::notice::Flavor '$label' is version $version, not the released tag $TAG; skipping."
+            interfaces="$(grep -m1 -oP '##\s*Interface:\s*\K.*' "$toc" || true)"
+            if [ -z "$interfaces" ]; then
+              echo "::error::flavor $label: no Interface line in $toc"; exit 1
+            fi
+
+            # The release tag's major (its first number) selects the flavor:
+            # match it against the WoW major this TOC's interface targets
+            # (interface 50504 -> major 5 -> Mists; 120007 -> major 12 -> Retail).
+            # This keys off the major only, so the tag never has to equal the
+            # TOC's exact ## Version.
+            first_n="$(echo "$interfaces" | tr ',' '\n' | head -1 | tr -dc '0-9')"
+            toc_major="$(( first_n / 10000 ))"
+            tag_major="${TAG#v}"; tag_major="${tag_major%%.*}"
+            if [ "$toc_major" != "$tag_major" ]; then
+              echo "::notice::Flavor '$label' targets WoW major $toc_major, not the released tag's major $tag_major; skipping."
               continue
             fi
 
-            # This flavor matches the tag — its zip must be attached.
-            zip="dist/${PROJECT}-v${version}${dashed}.zip"
-            if [ ! -f "$zip" ]; then
-              echo "::error::flavor $label matches tag $TAG but its asset ($zip) is not attached to the release."; exit 1
+            # Selected flavor — find its attached zip by the suffix build.ps1
+            # appends (retail has none; Mists is "-Mists").
+            zip=""
+            for z in dist/*.zip; do
+              rest="$(basename "$z" .zip)"; rest="${rest#"${PROJECT}-v"}"
+              if [[ "$rest" =~ ^[0-9.]+"${dashed}"$ ]]; then zip="$z"; fi
+            done
+            if [ -z "$zip" ]; then
+              echo "::error::flavor $label matches tag major $tag_major but no matching asset (${PROJECT}-v*${dashed}.zip) is attached to the release."; exit 1
             fi
 
             pid="$(grep -m1 -oP '##\s*X-Curse-Project-ID:\s*\K[0-9]+' "$toc" || true)"
             if [ -z "$pid" ]; then
               echo "::error::flavor $label: no X-Curse-Project-ID in $toc"; exit 1
-            fi
-            interfaces="$(grep -m1 -oP '##\s*Interface:\s*\K.*' "$toc" || true)"
-            if [ -z "$interfaces" ]; then
-              echo "::error::flavor $label: no Interface line in $toc"; exit 1
             fi
 
             ids="[]"
@@ -130,6 +141,6 @@ jobs:
           done
 
           if [ "$UPLOADED" -eq 0 ]; then
-            echo "::error::No flavor's version matched the release tag $TAG — nothing uploaded. (Tag must equal a TOC's ## Version.)"; exit 1
+            echo "::error::No flavor's WoW major matched the release tag $TAG — nothing uploaded."; exit 1
           fi
           echo "Uploaded $UPLOADED flavor(s) to CurseForge."
