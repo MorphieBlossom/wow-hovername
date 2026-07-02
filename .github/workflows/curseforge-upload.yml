@@ -5,10 +5,14 @@ name: Upload release to CurseForge
 # build.ps1 produced the zip locally and it rode along on the release, so CI
 # is purely "grab the asset, resolve game versions, upload".
 #
-# Flavor selection: the release tag's major (its first number) is looked up in
-# FLAVOR_BY_MAJOR to pick the flavor (Retail vs Mists). Each flavor has its own
-# TOC, interface line, and build.ps1 filename suffix, all under one CurseForge
-# project. Game versions come from the selected flavor's `## Interface:` line.
+# This workflow is IDENTICAL across the MorphieBlossom addon family — all the
+# per-addon config lives in the TOC files:
+#   * The release tag's major (first number) picks the flavor via
+#     FLAVOR_BY_MAJOR (5.x = Mists Classic, every other major = Retail).
+#   * That flavor's TOC provides the CurseForge project id (X-Curse-Project-ID)
+#     and its `## Interface:` line lists the exact patches to tag on CurseForge.
+# An addon that doesn't ship a flavor simply has no TOC for it, so that major
+# never resolves for it (e.g. Meower has no _Mists TOC).
 on:
   release:
     types: [published]
@@ -48,9 +52,8 @@ jobs:
 
           # WoW major version -> flavor (the TOC suffix build.ps1 uses). The
           # release tag's first number picks the flavor from this list. 5.x is
-          # Mists Classic (HoverName_Mists.toc); every other major is Retail
-          # (HoverName.toc). Repoint an entry (or add a higher major) when a
-          # new flavor/expansion ships.
+          # Mists Classic (_Mists TOC); every other major is Retail (base TOC).
+          # Repoint an entry (or add major 14+) when a new flavor/expansion ships.
           declare -A FLAVOR_BY_MAJOR=(
             [1]=""        # Classic (Vanilla)
             [2]=""        # The Burning Crusade
@@ -65,8 +68,6 @@ jobs:
             [11]=""       # The War Within
             [12]=""       # Midnight
             [13]=""       # The Last Titan
-            [14]=""       # (future)
-            [15]=""       # (future)
           )
 
           # Base addon name = the TOC whose stem has no "_" flavor suffix.
@@ -78,11 +79,11 @@ jobs:
           if [ "$suffix" = "__none__" ]; then
             echo "::error::No flavor mapped for WoW major '$tag_major' (release tag $TAG). Add it to FLAVOR_BY_MAJOR."; exit 1
           fi
-          dashed="${suffix//_/-}"                    # "" or "-Mists"
+          dashed="${suffix//_/-}"                    # "" (retail) or e.g. "-Mists"
           label="${suffix#_}"; label="${label:-retail}"
           toc="src/${PROJECT}${suffix}.toc"
           if [ ! -f "$toc" ]; then
-            echo "::error::flavor $label selected (major $tag_major) but $toc not found."; exit 1
+            echo "::error::flavor $label selected (major $tag_major) but $toc not found — this addon doesn't ship that flavor."; exit 1
           fi
           echo "Addon: $PROJECT | tag: $TAG | major $tag_major -> flavor $label ($toc)"
 
@@ -102,8 +103,8 @@ jobs:
           if [ -z "$interfaces" ]; then echo "::error::no Interface line in $toc"; exit 1; fi
 
           # CurseForge wants numeric gameVersion IDs, not the interface number
-          # or the "12.0.7" string. Decode each interface on the line to a patch
-          # name and match it against /api/game/versions. A patch not yet live
+          # or the "12.0.7" string. Decode each patch on the TOC's Interface
+          # line and match it against /api/game/versions. A patch not yet live
           # on CurseForge is warned-and-skipped rather than fatal.
           VERSIONS="$(curl -fsSL -H "X-Api-Token: $CF_API_KEY" \
             https://wow.curseforge.com/api/game/versions)"
