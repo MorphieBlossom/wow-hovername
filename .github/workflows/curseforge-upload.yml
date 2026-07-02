@@ -47,11 +47,13 @@ jobs:
           shopt -s nullglob
 
           # WoW major version -> flavor (the TOC suffix build.ps1 uses). The
-          # release tag's first number picks the flavor from this list. Add a
-          # line here when a new WoW major (expansion / classic flavor) ships.
+          # release tag's first number picks the flavor from this list. 5.x is
+          # Mists Classic (HoverName_Mists.toc); every other major is Retail
+          # (HoverName.toc). Repoint an entry (or add a higher major) when a
+          # new flavor/expansion ships.
           declare -A FLAVOR_BY_MAJOR=(
-            [12]=""        # Retail        -> HoverName.toc
-            [5]="_Mists"   # Mists Classic -> HoverName_Mists.toc
+            [1]=""  [2]=""  [3]=""  [4]=""  [5]="_Mists"  [6]=""  [7]=""  [8]=""
+            [9]=""  [10]="" [11]="" [12]="" [13]="" [14]="" [15]=""
           )
 
           # Base addon name = the TOC whose stem has no "_" flavor suffix.
