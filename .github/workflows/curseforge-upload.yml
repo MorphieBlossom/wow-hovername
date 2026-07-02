@@ -6,10 +6,12 @@ name: Upload release to CurseForge
 # is purely "grab the assets, resolve game versions, upload".
 #
 # HoverName ships multiple flavors (Retail + Mists), each with its own TOC,
-# interface line, and version, all under one CurseForge project. Each flavor's
-# zip is matched to its TOC by the filename suffix that build.ps1 appends
-# (e.g. HoverName-v5.5.4.0-Mists.zip <-> HoverName_Mists.toc), then uploaded
-# with the game versions decoded from THAT TOC's `## Interface:` line.
+# interface line, and version, all under one CurseForge project. Flavors are
+# versioned and released independently, so the release TAG selects the flavor:
+# only the flavor whose `## Version` matches the tag is uploaded (a 12.x tag
+# uploads Retail; a 5.5.x tag uploads Mists). Its zip is identified by the
+# filename build.ps1 produces (e.g. HoverName-v5.5.4.0-Mists.zip), and tagged
+# with the game versions decoded from that flavor's `## Interface:` line.
 on:
   release:
     types: [published]
@@ -48,6 +50,7 @@ jobs:
         env:
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
           RELEASE_BODY: ${{ github.event.release.body }}
+          TAG: ${{ github.event.release.tag_name }}
         run: |
           set -euo pipefail
           shopt -s nullglob
@@ -55,7 +58,7 @@ jobs:
           # Project (base) name = the TOC whose stem has no "_" flavor suffix.
           BASE_TOC="$(ls src/*.toc | grep -vE '/[^/]*_[^/]*\.toc$' | head -1)"
           PROJECT="$(basename "$BASE_TOC" .toc)"
-          echo "Addon: $PROJECT"
+          echo "Addon: $PROJECT  |  release tag: $TAG"
 
           VERSIONS="$(curl -fsSL -H "X-Api-Token: $CF_API_KEY" \
             https://wow.curseforge.com/api/game/versions)"
@@ -67,15 +70,18 @@ jobs:
             dashed="${suffix//_/-}"              # "" or "-Mists"
             label="${suffix:-retail}"; label="${label#_}"
 
-            # Match the built zip for this flavor: "<Project>-v<version><dashed>.zip".
-            zip=""
-            for z in dist/*.zip; do
-              rest="$(basename "$z" .zip)"; rest="${rest#"${PROJECT}-v"}"
-              if [[ "$rest" =~ ^[0-9.]+"${dashed}"$ ]]; then zip="$z"; fi
-            done
-            if [ -z "$zip" ]; then
-              echo "::notice::No asset for flavor '$label'; skipping (not attached to this release)."
+            # The release tag selects the flavor: skip any flavor whose TOC
+            # version doesn't equal the tag being released.
+            version="$(grep -m1 -oP '##\s*Version:\s*\K.*' "$toc" | tr -d '[:space:]' || true)"
+            if [ "$version" != "$TAG" ]; then
+              echo "::notice::Flavor '$label' is version $version, not the released tag $TAG; skipping."
               continue
+            fi
+
+            # This flavor matches the tag — its zip must be attached.
+            zip="dist/${PROJECT}-v${version}${dashed}.zip"
+            if [ ! -f "$zip" ]; then
+              echo "::error::flavor $label matches tag $TAG but its asset ($zip) is not attached to the release."; exit 1
             fi
 
             pid="$(grep -m1 -oP '##\s*X-Curse-Project-ID:\s*\K[0-9]+' "$toc" || true)"
@@ -124,6 +130,6 @@ jobs:
           done
 
           if [ "$UPLOADED" -eq 0 ]; then
-            echo "::error::No release asset matched any flavor TOC — nothing uploaded."; exit 1
+            echo "::error::No flavor's version matched the release tag $TAG — nothing uploaded. (Tag must equal a TOC's ## Version.)"; exit 1
           fi
           echo "Uploaded $UPLOADED flavor(s) to CurseForge."
