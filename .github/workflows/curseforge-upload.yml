@@ -1,17 +1,14 @@
 name: Upload release to CurseForge
 
-# When a GitHub release is published, take the zip(s) already attached to that
-# release and push them to CurseForge's upload API. Nothing is rebuilt here —
-# build.ps1 produced the zips locally and they rode along on the release, so CI
-# is purely "grab the assets, resolve game versions, upload".
+# When a GitHub release is published, take the zip already attached to that
+# release and push it to CurseForge's upload API. Nothing is rebuilt here —
+# build.ps1 produced the zip locally and it rode along on the release, so CI
+# is purely "grab the asset, resolve game versions, upload".
 #
-# HoverName ships multiple flavors (Retail + Mists), each with its own TOC,
-# interface line, and version, all under one CurseForge project. Flavors are
-# versioned and released independently, so the release TAG's major (its first
-# number) selects the flavor: it's matched against the WoW major each TOC's
-# interface targets (5.x -> Mists, 12.x -> Retail). The selected flavor's zip
-# is found by the filename suffix build.ps1 appends (e.g. -Mists) and tagged
-# with the game versions decoded from that flavor's `## Interface:` line.
+# Flavor selection: the release tag's major (its first number) is looked up in
+# FLAVOR_BY_MAJOR to pick the flavor (Retail vs Mists). Each flavor has its own
+# TOC, interface line, and build.ps1 filename suffix, all under one CurseForge
+# project. Game versions come from the selected flavor's `## Interface:` line.
 on:
   release:
     types: [published]
@@ -20,9 +17,9 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
-      # Check out first — it's needed to read the TOCs, and it must run BEFORE
+      # Check out first — it's needed to read the TOC, and it must run BEFORE
       # the asset download: this step cleans the workspace, which would
-      # otherwise wipe the untracked zips we download into ./dist.
+      # otherwise wipe the untracked zip we download into ./dist.
       - name: Checkout source (for TOC metadata)
         uses: actions/checkout@v4
 
@@ -40,13 +37,7 @@ jobs:
           fi
           echo "Downloaded assets:"; ls -1 ./dist/*.zip
 
-      # For each flavor TOC in src/, find its matching zip, decode the
-      # `## Interface:` line into CurseForge game-version IDs, and upload.
-      # CurseForge wants numeric gameVersion IDs, not the interface number or
-      # the "12.0.7" string — resolve them by matching the decoded patch name
-      # against /api/game/versions. A listed patch that isn't live on
-      # CurseForge yet is warned-and-skipped rather than fatal.
-      - name: Upload flavors to CurseForge
+      - name: Upload to CurseForge
         env:
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
           RELEASE_BODY: ${{ github.event.release.body }}
@@ -55,92 +46,82 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
 
-          # Project (base) name = the TOC whose stem has no "_" flavor suffix.
+          # WoW major version -> flavor (the TOC suffix build.ps1 uses). The
+          # release tag's first number picks the flavor from this list. Add a
+          # line here when a new WoW major (expansion / classic flavor) ships.
+          declare -A FLAVOR_BY_MAJOR=(
+            [12]=""        # Retail        -> HoverName.toc
+            [5]="_Mists"   # Mists Classic -> HoverName_Mists.toc
+          )
+
+          # Base addon name = the TOC whose stem has no "_" flavor suffix.
           BASE_TOC="$(ls src/*.toc | grep -vE '/[^/]*_[^/]*\.toc$' | head -1)"
           PROJECT="$(basename "$BASE_TOC" .toc)"
-          echo "Addon: $PROJECT  |  release tag: $TAG"
 
+          tag_major="${TAG#v}"; tag_major="${tag_major%%.*}"
+          suffix="${FLAVOR_BY_MAJOR[$tag_major]-__none__}"
+          if [ "$suffix" = "__none__" ]; then
+            echo "::error::No flavor mapped for WoW major '$tag_major' (release tag $TAG). Add it to FLAVOR_BY_MAJOR."; exit 1
+          fi
+          dashed="${suffix//_/-}"                    # "" or "-Mists"
+          label="${suffix#_}"; label="${label:-retail}"
+          toc="src/${PROJECT}${suffix}.toc"
+          if [ ! -f "$toc" ]; then
+            echo "::error::flavor $label selected (major $tag_major) but $toc not found."; exit 1
+          fi
+          echo "Addon: $PROJECT | tag: $TAG | major $tag_major -> flavor $label ($toc)"
+
+          # Find the flavor's zip by the suffix build.ps1 appends (retail: none).
+          zip=""
+          for z in dist/*.zip; do
+            rest="$(basename "$z" .zip)"; rest="${rest#"${PROJECT}-v"}"
+            if [[ "$rest" =~ ^[0-9.]+"${dashed}"$ ]]; then zip="$z"; fi
+          done
+          if [ -z "$zip" ]; then
+            echo "::error::flavor $label: no matching asset (${PROJECT}-v*${dashed}.zip) attached to the release."; exit 1
+          fi
+
+          pid="$(grep -m1 -oP '##\s*X-Curse-Project-ID:\s*\K[0-9]+' "$toc" || true)"
+          if [ -z "$pid" ]; then echo "::error::no X-Curse-Project-ID in $toc"; exit 1; fi
+          interfaces="$(grep -m1 -oP '##\s*Interface:\s*\K.*' "$toc" || true)"
+          if [ -z "$interfaces" ]; then echo "::error::no Interface line in $toc"; exit 1; fi
+
+          # CurseForge wants numeric gameVersion IDs, not the interface number
+          # or the "12.0.7" string. Decode each interface on the line to a patch
+          # name and match it against /api/game/versions. A patch not yet live
+          # on CurseForge is warned-and-skipped rather than fatal.
           VERSIONS="$(curl -fsSL -H "X-Api-Token: $CF_API_KEY" \
             https://wow.curseforge.com/api/game/versions)"
-
-          UPLOADED=0
-          for toc in src/*.toc; do
-            base="$(basename "$toc" .toc)"      # HoverName or HoverName_Mists
-            suffix="${base#"$PROJECT"}"          # "" or "_Mists"
-            dashed="${suffix//_/-}"              # "" or "-Mists"
-            label="${suffix:-retail}"; label="${label#_}"
-
-            interfaces="$(grep -m1 -oP '##\s*Interface:\s*\K.*' "$toc" || true)"
-            if [ -z "$interfaces" ]; then
-              echo "::error::flavor $label: no Interface line in $toc"; exit 1
+          ids="[]"
+          IFS=',' read -ra nums <<< "$interfaces"
+          for raw in "${nums[@]}"; do
+            n="$(echo "$raw" | tr -dc '0-9')"; [ -z "$n" ] && continue
+            # Interface number MMmmpp -> major.minor.patch
+            ver="$(( n / 10000 )).$(( (n / 100) % 100 )).$(( n % 100 ))"
+            id="$(echo "$VERSIONS" | jq -r --arg p "$ver" \
+              'map(select(.name == $p)) | .[0].id // empty')"
+            if [ -n "$id" ]; then
+              ids="$(echo "$ids" | jq --argjson x "$id" '. + [$x]')"
+              echo "  $ver (interface $n) -> $id"
+            else
+              echo "::warning::no CurseForge game version named '$ver' (interface $n); skipping. Is that patch live on CurseForge yet?"
             fi
-
-            # The release tag's major (its first number) selects the flavor:
-            # match it against the WoW major this TOC's interface targets
-            # (interface 50504 -> major 5 -> Mists; 120007 -> major 12 -> Retail).
-            # This keys off the major only, so the tag never has to equal the
-            # TOC's exact ## Version.
-            first_n="$(echo "$interfaces" | tr ',' '\n' | head -1 | tr -dc '0-9')"
-            toc_major="$(( first_n / 10000 ))"
-            tag_major="${TAG#v}"; tag_major="${tag_major%%.*}"
-            if [ "$toc_major" != "$tag_major" ]; then
-              echo "::notice::Flavor '$label' targets WoW major $toc_major, not the released tag's major $tag_major; skipping."
-              continue
-            fi
-
-            # Selected flavor — find its attached zip by the suffix build.ps1
-            # appends (retail has none; Mists is "-Mists").
-            zip=""
-            for z in dist/*.zip; do
-              rest="$(basename "$z" .zip)"; rest="${rest#"${PROJECT}-v"}"
-              if [[ "$rest" =~ ^[0-9.]+"${dashed}"$ ]]; then zip="$z"; fi
-            done
-            if [ -z "$zip" ]; then
-              echo "::error::flavor $label matches tag major $tag_major but no matching asset (${PROJECT}-v*${dashed}.zip) is attached to the release."; exit 1
-            fi
-
-            pid="$(grep -m1 -oP '##\s*X-Curse-Project-ID:\s*\K[0-9]+' "$toc" || true)"
-            if [ -z "$pid" ]; then
-              echo "::error::flavor $label: no X-Curse-Project-ID in $toc"; exit 1
-            fi
-
-            ids="[]"
-            IFS=',' read -ra nums <<< "$interfaces"
-            for raw in "${nums[@]}"; do
-              n="$(echo "$raw" | tr -dc '0-9')"; [ -z "$n" ] && continue
-              # Interface number MMmmpp -> major.minor.patch
-              ver="$(( n / 10000 )).$(( (n / 100) % 100 )).$(( n % 100 ))"
-              id="$(echo "$VERSIONS" | jq -r --arg p "$ver" \
-                'map(select(.name == $p)) | .[0].id // empty')"
-              if [ -n "$id" ]; then
-                ids="$(echo "$ids" | jq --argjson x "$id" '. + [$x]')"
-                echo "  [$label] $ver (interface $n) -> $id"
-              else
-                echo "::warning::flavor $label: no CurseForge game version named '$ver' (interface $n); skipping. Is that patch live on CurseForge yet?"
-              fi
-            done
-            ids="$(echo "$ids" | jq -c 'unique')"
-            if [ "$ids" = "[]" ]; then
-              echo "::error::flavor $label: none of the interface versions matched a CurseForge game version"; exit 1
-            fi
-
-            jq -n \
-              --arg cl "${RELEASE_BODY:-}" \
-              --argjson gv "$ids" \
-              '{changelog: $cl, changelogType: "markdown", releaseType: "release", gameVersions: $gv}' \
-              > metadata.json
-
-            echo "Uploading $zip (flavor $label) -> project $pid, game versions $ids"
-            curl -fsSL -X POST \
-              -H "X-Api-Token: $CF_API_KEY" \
-              -F "metadata=<metadata.json" \
-              -F "file=@$zip" \
-              "https://wow.curseforge.com/api/projects/$pid/upload-file"
-            echo
-            UPLOADED=$((UPLOADED + 1))
           done
-
-          if [ "$UPLOADED" -eq 0 ]; then
-            echo "::error::No flavor's WoW major matched the release tag $TAG — nothing uploaded."; exit 1
+          ids="$(echo "$ids" | jq -c 'unique')"
+          if [ "$ids" = "[]" ]; then
+            echo "::error::none of the interface versions matched a CurseForge game version"; exit 1
           fi
-          echo "Uploaded $UPLOADED flavor(s) to CurseForge."
+
+          jq -n \
+            --arg cl "${RELEASE_BODY:-}" \
+            --argjson gv "$ids" \
+            '{changelog: $cl, changelogType: "markdown", releaseType: "release", gameVersions: $gv}' \
+            > metadata.json
+
+          echo "Uploading $zip (flavor $label) -> project $pid, game versions $ids"
+          curl -fsSL -X POST \
+            -H "X-Api-Token: $CF_API_KEY" \
+            -F "metadata=<metadata.json" \
+            -F "file=@$zip" \
+            "https://wow.curseforge.com/api/projects/$pid/upload-file"
+          echo "Done."
