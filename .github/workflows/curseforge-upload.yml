@@ -52,8 +52,21 @@ jobs:
           # (HoverName.toc). Repoint an entry (or add a higher major) when a
           # new flavor/expansion ships.
           declare -A FLAVOR_BY_MAJOR=(
-            [1]=""  [2]=""  [3]=""  [4]=""  [5]="_Mists"  [6]=""  [7]=""  [8]=""
-            [9]=""  [10]="" [11]="" [12]="" [13]="" [14]="" [15]=""
+            [1]=""        # Classic (Vanilla)
+            [2]=""        # The Burning Crusade
+            [3]=""        # Wrath of the Lich King
+            [4]=""        # Cataclysm
+            [5]="_Mists"  # Mists of Pandaria (Classic)
+            [6]=""        # Warlords of Draenor
+            [7]=""        # Legion
+            [8]=""        # Battle for Azeroth
+            [9]=""        # Shadowlands
+            [10]=""       # Dragonflight
+            [11]=""       # The War Within
+            [12]=""       # Midnight
+            [13]=""       # The Last Titan
+            [14]=""       # (future)
+            [15]=""       # (future)
           )
 
           # Base addon name = the TOC whose stem has no "_" flavor suffix.
