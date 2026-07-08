@@ -2,6 +2,16 @@ local _, addon = ...
 
 addon.MBLib.Changelog:Set({
   {
+    version = "12.0.7.1",
+    date = "2026-07-08",
+    notify = false,
+    categories = {
+      ["Version update"] = {
+        "Ready for game version 12.1.0 (still supports 12.0.7).",
+      }
+    }
+  },
+  {
     version = "12.0.7.0",
     date = "2026-06-25",
     notify = false,
