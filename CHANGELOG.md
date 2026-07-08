@@ -1,6 +1,11 @@
 ﻿# Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `12.0.7.1` (2026-07-08)
+**Version update**
+- Ready for game version 12.1.0 (still supports 12.0.7).
+
+---
 ### `12.0.7.0` (2026-06-25)
 **Version update**
 - Updated to game version 12.0.7
