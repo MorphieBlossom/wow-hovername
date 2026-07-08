@@ -1,0 +1,21 @@
+## Interface: 20506
+## Version: 2.5.6.0
+
+## X-Flavor: classic
+## X-Expansion: TBC
+## X-Curse-Project-ID: 1071886
+## X-Wago-ID: BNBe9xGx
+
+## Title: HoverName
+## Author: MorphieBlossom (Morphenia AD-EU)
+## Previous-Authors: Original Nightcracker & Narfi (DieAldor-EU)
+## Notes: Addon that shows the names of players and NPC's if you hover over them
+## SavedVariables: HoverNameData
+
+Libraries\Load_Libraries_TBC.xml
+Init.lua
+Modules\Settings.lua
+Modules\Changelog.lua
+Modules\UnitInfo.lua
+Modules\QuestInfo.lua
+Modules\HoverName.lua

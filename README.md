@@ -12,6 +12,12 @@
 
 ---
 
+### Version 2.5.6.0 - available for World of Warcraft - TBC Classic (The Burning Crusade) ![Version](https://img.shields.io/badge/version-2.5.6-blue)
+
+👉 View the [changelog here](https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG_TBC.md)
+
+---
+
 _If you have questions, suggestions or encountering issues - feel free to reach out on [CurseForge](https://www.curseforge.com/wow/addons/hovername) or the [Github project](https://github.com/MorphieBlossom/wow-hovername)_
 
 > [!NOTE]
