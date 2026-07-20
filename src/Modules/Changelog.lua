@@ -2,6 +2,17 @@ local _, addon = ...
 
 addon.MBLib.Changelog:Set({
   {
+    version = "12.1.0.0",
+    date = "2026-07-20",
+    notify = true,
+    categories = {
+      ["New"] = {
+        "Added a Mythic+ option: while in a keystone run, show how much a hovered enemy contributes to Enemy Forces, optionally with the overall current/total pull progress. Configure the format (percentage / number / both), the font size, and whether it shows below or beside the name in the new \"Mythic+\" settings group.",
+        "Added a font size slider for the quest / objective text.",
+      }
+    }
+  },
+  {
     version = "12.0.7.1",
     date = "2026-07-08",
     notify = false,

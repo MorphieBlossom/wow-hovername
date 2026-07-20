@@ -1,5 +1,5 @@
 ## Interface: 50504
-## Version: 5.5.4.0
+## Version: 5.5.4.1
 
 ## X-Flavor: classic
 ## X-Expansion: MOP

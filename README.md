@@ -1,18 +1,18 @@
 # <img src="https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/refs/heads/main/media/hovername-icon.png" width="50" height="50"> HoverName
 
-### Version 12.0.7.1 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-12.0.7-blue)
+### Version 12.1.0.0 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-12.1.0-blue)
 
 👉 View the [changelog here](https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG.md)
 
 ---
 
-### Version 5.5.4.0 - available for World of Warcraft - Mists of Pandaria Classic ![Version](https://img.shields.io/badge/version-5.5.4-blue)
+### Version 5.5.4.1 - available for World of Warcraft - Mists of Pandaria Classic ![Version](https://img.shields.io/badge/version-5.5.4-blue)
 
 👉 View the [changelog here](https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG_Mists.md)
 
 ---
 
-### Version 2.5.6.0 - available for World of Warcraft - TBC Classic (The Burning Crusade) ![Version](https://img.shields.io/badge/version-2.5.6-blue)
+### Version 2.5.6.1 - available for World of Warcraft - TBC Classic (The Burning Crusade) ![Version](https://img.shields.io/badge/version-2.5.6-blue)
 
 👉 View the [changelog here](https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG_TBC.md)
 
@@ -53,4 +53,12 @@ The target's classification (world boss, elite, rare, rare elite)
 The quest objectives related to the target (quest, daily, world quest)
 - When there are multiple objectives related to the target, all of the will be shown. The objective(s) completed will stay present, until all objectives are completed. (The target will then be flagged by the API as no more relevant to active quest objectives). The list of objectives is sorted: In Progress > Done.
 - Targets that are related to "Progress quests" (Those with %) will show the current % done and in addition (when known in the [LibObjectiveProgress-1.0 library](https://www.curseforge.com/wow/addons/libobjectiveprogress-1-0)) it will show how much that target will add to the %-counter when killed/looted/clicked.
+
+The target's Mythic+ Enemy Forces contribution (only while inside an active Mythic+ keystone run)
+- How much the target adds to the dungeon's Enemy Forces, shown as a percentage, a raw count, or both.
+- Optionally followed by the overall pull progress (current out of total).
+- Can be shown below the name or beside it, and has its own font size.
+
+### Settings
+Open the options with `/hn` (or WoW Options → AddOns → HoverName). You can toggle each piece of information above on or off, adjust colors and font sizes, choose where the frame sits relative to the cursor, and enable an optional background.
 
