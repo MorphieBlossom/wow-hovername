@@ -1,6 +1,13 @@
 ﻿# Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `12.1.0.0` (2026-07-20)
+**New**
+- Added a Mythic+ option: while in a keystone run, show how much a hovered enemy contributes to Enemy Forces, optionally with the overall current/total pull progress. Configure the format (percentage / number / both), the font size, and whether it shows below or beside the name in the new \
+- settings group.
+- Added a font size slider for the quest / objective text.
+
+---
 ### `12.0.7.1` (2026-07-08)
 **Version update**
 - Ready for game version 12.1.0 (still supports 12.0.7).

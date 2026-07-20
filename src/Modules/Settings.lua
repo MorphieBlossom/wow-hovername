@@ -284,6 +284,18 @@ addon.MBLib.Settings:Add({
     Default = true,
   },
   {
+    Key = "Quest_FontSize",
+    Name = "Font Size",
+    Description = "Font size of the quest / objective text.",
+    Group = "Quests / Objectives",
+    Type = "slider",
+    Min = 8,
+    Max = 30,
+    Step = 1,
+    Default = 9,
+    OnChange = HoverNameUpdate,
+  },
+  {
     Key = "Integrations_Rarity",
     Name = "Rarity",
     Description = "Show information from the 'Rarity' addon when it is installed",
@@ -293,3 +305,74 @@ addon.MBLib.Settings:Add({
     Hide = true,
   },
 })
+
+-- Mythic+ Enemy Forces settings are retail-only. Gate on the API that backs the
+-- feature (added in retail 12.0.5) so the "Mythic+" group never appears on the
+-- Classic flavors (TBC / Mists) that lack it. Feature-detection, not a version
+-- check, per project convention.
+if C_ScenarioInfo and C_ScenarioInfo.GetUnitCriteriaProgressValues then
+  addon.MBLib.Settings:Add({
+    {
+      Key = "MythicPlus_ShowForces",
+      Name = "Show Enemy Forces",
+      Description = "During a Mythic+ keystone run, show how much a hovered enemy contributes to the Enemy Forces requirement, below its name.",
+      Group = "Mythic+",
+      Type = "checkbox",
+      Default = true,
+    },
+    {
+      Key = "MythicPlus_ContributionFormat",
+      Name = "Contribution Format",
+      Description = "How the enemy's own contribution is shown.",
+      Group = "Mythic+",
+      Type = "dropdown",
+      Options = {
+        { name = "Percentage", value = "PERCENT" },
+        { name = "Number", value = "NUMBER" },
+        { name = "Both", value = "BOTH" },
+      },
+      Default = "PERCENT",
+    },
+    {
+      Key = "MythicPlus_ShowProgress",
+      Name = "Show Pull Progress",
+      Description = "Also show the overall Enemy Forces progress next to the contribution: current / total.",
+      Group = "Mythic+",
+      Type = "checkbox",
+      Default = false,
+    },
+    {
+      Key = "MythicPlus_ProgressFormat",
+      Name = "Progress Format",
+      Description = "How the pull progress (current / total) is shown.",
+      Group = "Mythic+",
+      Type = "dropdown",
+      Options = {
+        { name = "Percentage", value = "PERCENT" },
+        { name = "Number", value = "NUMBER" },
+        { name = "Both", value = "BOTH" },
+      },
+      Default = "PERCENT",
+    },
+    {
+      Key = "MythicPlus_FontSize",
+      Name = "Font Size",
+      Description = "Font size of the Enemy Forces text.",
+      Group = "Mythic+",
+      Type = "slider",
+      Min = 8,
+      Max = 30,
+      Step = 1,
+      Default = 12,
+      OnChange = HoverNameUpdate,
+    },
+    {
+      Key = "MythicPlus_DisplayRight",
+      Name = "Show Next to Name",
+      Description = "Show the Enemy Forces text to the right of the name instead of below it.",
+      Group = "Mythic+",
+      Type = "checkbox",
+      Default = false,
+    },
+  })
+end
