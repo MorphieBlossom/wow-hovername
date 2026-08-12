@@ -1,6 +1,12 @@
 ﻿# Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `12.1.0.1` (2026-08-12)
+**Fixed**
+- Fixed a Lua error when hovering a unit whose target is a player during combat (class color lookup no longer taints on secret values).
+- Fixed a Lua error in the quest objective text when hovering a unit whose name is a secret value during combat.
+
+---
 ### `12.1.0.0` (2026-07-20)
 **New**
 - Added a Mythic+ option: while in a keystone run, show how much a hovered enemy contributes to Enemy Forces, optionally with the overall current/total pull progress. Configure the format (percentage / number / both), the font size, and whether it shows below or beside the name in the new \

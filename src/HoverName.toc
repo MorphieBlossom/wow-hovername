@@ -1,6 +1,6 @@
 ## Interface: 120007, 120100
-## Version: 12.1.0.0
-## X-Date: 2026-07-20
+## Version: 12.1.0.1
+## X-Date: 2026-08-12
 
 ## Title: HoverName
 ## Author: MorphieBlossom (Morphenia AD-EU)

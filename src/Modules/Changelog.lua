@@ -2,6 +2,17 @@ local _, addon = ...
 
 addon.MBLib.Changelog:Set({
   {
+    version = "12.1.0.1",
+    date = "2026-08-12",
+    notify = false,
+    categories = {
+      ["Fixed"] = {
+        "Fixed a Lua error when hovering a unit whose target is a player during combat (class color lookup no longer taints on secret values).",
+        "Fixed a Lua error in the quest objective text when hovering a unit whose name is a secret value during combat.",
+      }
+    }
+  },
+  {
     version = "12.1.0.0",
     date = "2026-07-20",
     notify = true,

@@ -18,7 +18,10 @@ function UnitInfo:GetUnitNameColor(unittype)
 	if IsPlayer(unittype) then
 		if IsActive("Player_ClassColor") then
 			local _, class = UnitClass(unittype)
-			return RAID_CLASS_COLORS[class]
+			-- In combat, class can be a secret string; indexing a table with a
+			-- secret key taints execution, so fall back to the default color.
+			if class == nil or issecretvalue(class) then return addon.MBLib.COLOR_DEFAULT end
+			return RAID_CLASS_COLORS[class] or addon.MBLib.COLOR_DEFAULT
 		else return addon.MBLib.COLOR_DEFAULT end
 
 	elseif not IsActive("NPC_ColorState") then

@@ -110,7 +110,7 @@ function QuestInfo:GetQuestText(unit, tooltipLines)
 						end
 
 						-- Check for "monster" kill objectives (specific NPC kills)
-						if obj.type == "monster" and string.find(string.lower(obj.text), targetName, 1, true) then
+						if obj.type == "monster" and targetName and string.find(string.lower(obj.text), targetName, 1, true) then
 							table.insert(questTexts, { text = obj.text, finished = obj.finished })
 							break
 						end

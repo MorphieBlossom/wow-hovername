@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/refs/heads/main/media/hovername-icon.png" width="50" height="50"> HoverName
 
-### Version 12.1.0.0 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-12.1.0-blue)
+### Version 12.1.0.1 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-12.1.0-blue)
 
 👉 View the [changelog here](https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG.md)
 
@@ -34,31 +34,37 @@ World of Warcraft addon to show basic information about the target upon mouse ho
 
 ---
 
-It will display:
+## Complete list of options
 
-The target's level and name. (Level 1 and ?? are omitted)
-- Name is displayed in respective class color for players.
-- Name is displayed in standing state color for NPCs (dead, friendly, hostile, hostile but not attackable)
+**Player**
+- Name
+  - Additional color options
+- Level
+  - Additional color options
+- Target's target
+- Status (AFK / DND / PvP)
+- Guild name + rank
+- Race
+- Faction
 
-The target's target name
-- Class color or default color
+**NPC**
+- Name
+  - Additional color options
+- Level
+  - Additional color options
+- Target's target
+- Classification (rare / elite / boss)
+- Creature type (Beast, Humanoid, Demon, etc)
+- Faction
 
-The target's status (afk, dnd, pvp flagged)
-- Multiple are possible, each in a matching color
+**Quests / Objectives**
+- Quest / daily / world-quest objectives related to the target
+- Customizable text options
 
-The target's classification (world boss, elite, rare, rare elite)
-- World boss and Elite in a gold color - to match the gold dragon frame
-- Rare and Rare Elite in a silver color - to match the silver dragon frame
-
-The quest objectives related to the target (quest, daily, world quest)
-- When there are multiple objectives related to the target, all of the will be shown. The objective(s) completed will stay present, until all objectives are completed. (The target will then be flagged by the API as no more relevant to active quest objectives). The list of objectives is sorted: In Progress > Done.
-- Targets that are related to "Progress quests" (Those with %) will show the current % done and in addition (when known in the [LibObjectiveProgress-1.0 library](https://www.curseforge.com/wow/addons/libobjectiveprogress-1-0)) it will show how much that target will add to the %-counter when killed/looted/clicked.
-
-The target's Mythic+ Enemy Forces contribution (only while inside an active Mythic+ keystone run)
-- How much the target adds to the dungeon's Enemy Forces, shown as a percentage, a raw count, or both.
-- Optionally followed by the overall pull progress (current out of total).
-- Can be shown below the name or beside it, and has its own font size.
+**Mythic+** *(retail-only)*
+- The target's contribution to the "Enemy Forces" counter (trash percentage).
+- Customizable text options
 
 ### Settings
-Open the options with `/hn` (or WoW Options → AddOns → HoverName). You can toggle each piece of information above on or off, adjust colors and font sizes, choose where the frame sits relative to the cursor, and enable an optional background.
+Open the options with `/hn` (or WoW Options → AddOns → HoverName). You can toggle each piece of information above on or off, adjust colors and font sizes, choose where the frame sits relative to the cursor, and enable an optional background coloring.
 
