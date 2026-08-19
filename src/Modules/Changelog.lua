@@ -2,6 +2,19 @@ local _, addon = ...
 
 addon.MBLib.Changelog:Set({
   {
+    version = "12.1.0.2",
+    date = "2026-08-19",
+    notify = false,
+    categories = {
+      ["Version update"] = {
+        "Now supports game version 12.1.5 (dropped 12.0.7).",
+      },
+      ["Fixed"] = {
+        "Fixed a Lua error when matching quest objectives against tooltip lines during combat (secret tooltip strings are now skipped instead of tainting execution).",
+      }
+    }
+  },
+  {
     version = "12.1.0.1",
     date = "2026-08-12",
     notify = false,

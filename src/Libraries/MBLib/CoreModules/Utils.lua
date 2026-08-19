@@ -99,9 +99,11 @@ function Utils:IsInTooltip(tooltipLines, query)
   if not query or type(query) ~= "string" or query == "" then return false end
   local q = string.lower(query)
   for _, line in ipairs(tooltipLines) do
-    local toFind = line
-    if not issecretvalue(line) then toFind = string.lower(line) end
-    if string.find(toFind or "", q, 1, true) then return true end
+    -- Secret strings (combat-tainted tooltip text) can't be lowered, compared, or
+    -- passed to string.find without tainting execution — skip them entirely.
+    if line and not issecretvalue(line) then
+      if string.find(string.lower(line), q, 1, true) then return true end
+    end
   end
   return false
 end

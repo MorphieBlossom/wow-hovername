@@ -1,6 +1,11 @@
 ﻿# Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `12.1.0.2` (2026-08-15)
+**Version update**
+- Now supports game version 12.1.5 (dropped 12.0.7).
+
+---
 ### `12.1.0.1` (2026-08-12)
 **Fixed**
 - Fixed a Lua error when hovering a unit whose target is a player during combat (class color lookup no longer taints on secret values).
