@@ -268,6 +268,15 @@ addon.MBLib.Settings:Add({
     Default = false,
   },
   {
+    Key = "NPC_ShowCombat",
+    Name = "Show Combat Status",
+    Description = "Show a crossed-swords icon before an NPC's name while it is in combat.",
+    Group = "NPC",
+    Type = "checkbox",
+    Default = true,
+    OnChange = HoverNameUpdate,
+  },
+  {
     Key = "Quest_Show",
     Name = "Show Information",
     Description = "Show info below the target's name if this is needed for quests, dailies, world quests or objectives.",

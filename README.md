@@ -1,18 +1,18 @@
 # <img src="https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/refs/heads/main/media/hovername-icon.png" width="50" height="50"> HoverName
 
-### Version 12.1.0.2 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-12.1.0-blue)
+### Version 12.1.0.3 - available for World of Warcraft ![Version](https://img.shields.io/badge/version-12.1.0-blue)
 
 👉 View the [changelog here](https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG.md)
 
 ---
 
-### Version 5.5.4.1 - available for World of Warcraft - Mists of Pandaria Classic ![Version](https://img.shields.io/badge/version-5.5.4-blue)
+### Version 5.5.4.2 - available for World of Warcraft - Mists of Pandaria Classic ![Version](https://img.shields.io/badge/version-5.5.4-blue)
 
 👉 View the [changelog here](https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG_Mists.md)
 
 ---
 
-### Version 2.5.6.1 - available for World of Warcraft - TBC Classic (The Burning Crusade) ![Version](https://img.shields.io/badge/version-2.5.6-blue)
+### Version 2.5.6.2 - available for World of Warcraft - TBC Classic (The Burning Crusade) ![Version](https://img.shields.io/badge/version-2.5.6-blue)
 
 👉 View the [changelog here](https://raw.githubusercontent.com/MorphieBlossom/wow-hovername/master/CHANGELOG_TBC.md)
 

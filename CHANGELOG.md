@@ -1,6 +1,11 @@
 ﻿# Changelog
 All notable changes to this project will be documented in this file.
 ---
+### `12.1.0.3` (2026-08-20)
+**New**
+- Added a Show Combat Status option for NPCs: shows a crossed-swords icon before a mob name while it is in combat.
+
+---
 ### `12.1.0.2` (2026-08-15)
 **Version update**
 - Now supports game version 12.1.5 (dropped 12.0.7).

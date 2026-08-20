@@ -2,6 +2,16 @@ local _, addon = ...
 
 addon.MBLib.Changelog:Set({
   {
+    version = "12.1.0.3",
+    date = "2026-08-20",
+    notify = false,
+    categories = {
+      ["New"] = {
+        "Added a Show Combat Status option for NPCs: shows a crossed-swords icon before a mob name while it is in combat.",
+      }
+    }
+  },
+  {
     version = "12.1.0.2",
     date = "2026-08-19",
     notify = false,

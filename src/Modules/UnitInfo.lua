@@ -164,6 +164,25 @@ function UnitInfo:GetRaceText()
 	end
 end
 
+-- Blizzard's crossed-swords "in combat" glyph. It lives in the top-right
+-- quadrant of the shared UI-StateIcon sheet (texcoords 0.5-1.0 horizontally,
+-- 0.0-0.484375 vertically on the 64x64 texture); the |T...|t markup below
+-- reproduces that region so the icon can be inlined into the name string.
+local COMBAT_ICON_TEXTURE = "Interface\\CharacterFrame\\UI-StateIcon"
+
+function UnitInfo:GetCombatIcon()
+	if IsPlayer() or not IsActive("NPC_ShowCombat") then return nil end
+
+	-- UnitAffectingCombat can return a secret value while the player is in
+	-- combat; comparing it would taint execution, so bail on secret/false/nil.
+	local inCombat = UnitAffectingCombat("mouseover")
+	if inCombat == nil or issecretvalue(inCombat) or not inCombat then return nil end
+
+	local size = tonumber(addon.MBLib.Settings and addon.MBLib.Settings.Get
+		and addon.MBLib.Settings:Get("Display_FontSize")) or 12
+	return string.format("|T%s:%d:%d:0:0:64:64:32:64:0:31|t", COMBAT_ICON_TEXTURE, size, size)
+end
+
 function UnitInfo:GetCreatureType()
 	if IsPlayer() or not IsActive("NPC_ShowCreatureType") then return nil end
 

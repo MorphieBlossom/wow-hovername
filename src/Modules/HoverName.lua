@@ -15,6 +15,7 @@ local Layout = {
 	CURSOR_OFFSET_HORIZONTAL_DEFAULT = 0, -- Fallback horizontal offset from cursor when setting is unavailable.
 	FORCES_GAP_RIGHT = 6, -- Horizontal gap between the name and the Enemy Forces text (right mode).
 	FORCES_GAP_UNDER = 2, -- Vertical gap below the subtext block before the Enemy Forces line (under mode).
+	COMBAT_ICON_GAP = -2, -- Horizontal gap between the combat icon and the name line (negative tucks it closer, compensating for the icon texture's transparent border).
 }
 
 -- Map a Cursor Anchor selection to the frame point that should sit at the cursor.
@@ -94,6 +95,7 @@ local function UpdateFrameFonts(f)
 
 	pcall(function()
 		if f.mainText then f.mainText:SetFont(fontPath, fontSize, fontOutline) end
+		if f.combatIcon then f.combatIcon:SetFont(fontPath, fontSize, fontOutline) end
 		if f.headerText then f.headerText:SetFont(fontPath, fontSize - 3, fontOutline) end
 		if f.statusText then f.statusText:SetFont(fontPath, fontSize - 4, fontOutline) end
 		if f.guildText then f.guildText:SetFont(fontPath, fontSize - 4, fontOutline) end
@@ -146,6 +148,14 @@ local function UpdateFrameContents(f)
 	if unitName == nil then return end
 
 	local unitText = addon.MBLib.Utils:GetTextWithColor(unitName, addon.UnitInfo:GetUnitNameColor("mouseover"))
+
+	-- In-combat crossed-swords icon (mobs only). Rendered as its own FontString
+	-- anchored to the LEFT of the name line (further down) so it extends leftward
+	-- instead of pushing the level / name to the right. The helper guards secret
+	-- combat values itself; wrap it anyway so a failure never breaks the frame.
+	local combatIcon
+	pcall(function() combatIcon = addon.UnitInfo:GetCombatIcon() end)
+
 	local level = addon.UnitInfo:GetLevelText()
 	local targetName = addon.UnitInfo:GetTargetText()
 	local status = addon.UnitInfo:GetStatusText()
@@ -162,6 +172,7 @@ local function UpdateFrameContents(f)
 	local guildText = guild
 
 	f.mainText:SetText(mainText)
+	f.combatIcon:SetText(combatIcon or "")
 	f.statusText:SetText(statusText)
 	f.headerText:SetText(headerText)
 	f.guildText:SetText(guildText)
@@ -281,6 +292,13 @@ local function UpdateFrameContents(f)
 	-- so the name + forces pair stays centered in the frame.
 	f.mainText:SetPoint("TOP", f, "TOP", -(rightExtra / 2), -topExtra)
 
+	-- The combat icon hangs off the left of the name line; anchoring its RIGHT to
+	-- the mainText LEFT means it grows leftward and never displaces the level.
+	f.combatIcon:ClearAllPoints()
+	if combatIcon then
+		f.combatIcon:SetPoint("RIGHT", f.mainText, "LEFT", -Layout.COMBAT_ICON_GAP, 0)
+	end
+
 	local top = 0
 	if addon.MBLib.Utils:IsNotEmpty(guildText) then top = SetAnchor(f.guildText, f.mainText, "TOPLEFT", top) end
 	if addon.MBLib.Utils:IsNotEmpty(headerText) then top = SetAnchor(f.headerText, f.mainText, "TOPLEFT", top) end
@@ -328,6 +346,7 @@ frame:SetBackdrop({ bgFile = "Interface/Tooltips/UI-Tooltip-Background" })
 frame:SetBackdropColor(0, 0, 0, 0)
 
 frame.mainText = frame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
+frame.combatIcon = frame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
 frame.statusText = frame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
 frame.headerText = frame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
 frame.guildText = frame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
